@@ -1,15 +1,22 @@
 import React from "react";
+import { Link } from "react-router-dom";
 
 const Navbar = ({ user }) => {
   return (
     <div className="header">
       <div className="header-container">
-        <div className="title">Word Playground</div>
+        <Link to="/" className="title link">
+          Word Playground
+        </Link>
         <ul className="nav">
           {user && <li className="nav-item">ルーム作成</li>}
           {user && <li className="nav-item">プロフィール</li>}
-          <li className="nav-item">ログイン</li>
-          <li className="nav-item">サインアップ</li>
+          <Link to="/login" className="nav-item link">
+            ログイン
+          </Link>
+          <Link to="/signup" className="nav-item link">
+            サインアップ
+          </Link>
           {user && <li className="nav-item">ログアウト</li>}
         </ul>
       </div>

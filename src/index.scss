@@ -25,6 +25,8 @@ body {
   font-family: "Noto Serif";
   background-color: $white;
 }
+
+/* header */
 .header {
   background-color: $black;
   .header-container {
@@ -49,6 +51,9 @@ body {
         list-style: none;
         margin-left: 2em;
         cursor: pointer;
+        &:hover {
+          color: $primary;
+        }
       }
     }
   }
@@ -62,12 +67,13 @@ body {
 /* MainPage */
 .main-page {
   text-align: center;
-  font-size: 1.6em;
 }
 
 /* Card */
 .card {
   &-banner {
+    font-size: 2em;
+    font-weight: 800;
     background-color: $grey;
     color: $white;
   }
@@ -77,15 +83,20 @@ body {
     background-color: $pure-white;
     color: $grey;
     &-text {
+      font-size: 1.6em;
+      font-weight: 600;
       position: absolute;
       left: 50%;
       top: 50%;
       transform: translate(-50%, -50%);
     }
     &-bottom {
+      display: flex;
+      align-items: center;
       position: absolute;
-      right: 1vw;
+      right: 2vw;
       bottom: 1vw;
+      font-size: 1.2em;
     }
   }
 }
@@ -113,4 +124,14 @@ body {
 }
 .text-grey {
   color: $grey;
+}
+.text-title {
+  font-size: 3em;
+  color: $primary;
+}
+
+/* reset Router style */
+.link {
+  color: inherit;
+  text-decoration: inherit;
 }
