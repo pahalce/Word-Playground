@@ -2,7 +2,9 @@
 
 /* variables */
 $white: #eeeeee;
+$pure-white: #ffffff;
 $black: #222831;
+$pure-black: #000000;
 $grey: #393e46;
 $primary: #00adb5;
 
@@ -34,9 +36,9 @@ body {
     color: white;
 
     .title {
-      font-size: 3em;
+      font-size: 2em;
       font-weight: 600;
-      line-height: 0.5em;
+      line-height: 2em;
       cursor: pointer;
     }
     .nav {
@@ -57,7 +59,58 @@ body {
   margin: 0 auto;
 }
 
+/* MainPage */
+.main-page {
+  text-align: center;
+  font-size: 1.6em;
+}
+
+/* Card */
+.card {
+  &-banner {
+    background-color: $grey;
+    color: $white;
+  }
+  &-content {
+    position: relative;
+    height: 50vh;
+    background-color: $pure-white;
+    color: $grey;
+    &-text {
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      transform: translate(-50%, -50%);
+    }
+    &-bottom {
+      position: absolute;
+      right: 1vw;
+      bottom: 1vw;
+    }
+  }
+}
+
+/* ClickableIcon */
+.icon {
+  display: inline-block;
+  cursor: pointer;
+  &:hover {
+    color: $primary;
+  }
+  &-after {
+    color: $primary;
+    transition: opacity 0.5s 0.2s;
+    opacity: 1;
+    &:hover {
+      opacity: 0.6;
+    }
+  }
+}
+
 /* text-styles */
-.text-regular {
-  font-size: 1em;
+.text-primary {
+  color: $primary;
+}
+.text-grey {
+  color: $grey;
 }

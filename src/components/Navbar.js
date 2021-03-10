@@ -4,7 +4,7 @@ const Navbar = ({ user }) => {
   return (
     <div className="header">
       <div className="header-container">
-        <h1 className="title">Word Playground</h1>
+        <div className="title">Word Playground</div>
         <ul className="nav">
           {user && <li className="nav-item">ルーム作成</li>}
           {user && <li className="nav-item">プロフィール</li>}

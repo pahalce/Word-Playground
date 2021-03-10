@@ -1,4 +1,5 @@
 import { useState } from "react";
+import MainPage from "./MainPage";
 import Navbar from "./Navbar";
 
 function App() {
@@ -6,7 +7,9 @@ function App() {
   return (
     <div className="App">
       <Navbar user={user} />
-      <div className="container"></div>
+      <div className="container">
+        <MainPage />
+      </div>
     </div>
   );
 }
