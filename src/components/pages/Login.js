@@ -3,7 +3,7 @@ import Input from "../reusables/form/Input";
 import Submit from "../reusables/form/Submit";
 const Login = () => {
   return (
-    <div className="signup">
+    <div className="login">
       <h1 className="text-title">ログイン</h1>
       <form>
         <Input label="Eメール:" type="email" autoComplete="email" />

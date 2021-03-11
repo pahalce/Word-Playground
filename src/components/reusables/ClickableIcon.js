@@ -5,14 +5,14 @@ const ClickableIcon = ({ before, after, size }) => {
 
   return (
     <div
-      className="icon"
+      className="clickable-icon"
       style={{ fontSize: size + "em" }}
       onClick={() => {
         setClicked(!clicked);
       }}
     >
       {!clicked && before()}
-      {clicked && <div className="icon-after">{after()}</div>}
+      {clicked && <div className="clickable-icon-after">{after()}</div>}
     </div>
   );
 };

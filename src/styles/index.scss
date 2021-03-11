@@ -129,7 +129,7 @@ body {
 }
 
 /* ClickableIcon */
-.icon {
+.clickable-icon {
   display: inline-block;
   cursor: pointer;
   &:hover {
@@ -146,18 +146,12 @@ body {
 }
 
 /* Input */
-form {
-  align-items: center;
-}
 .input-wrapper {
   display: flex;
   justify-content: left;
-  align-items: center;
-  width: 80%;
-  margin-top: 4vh;
 }
 .form-label {
-  width: 30%;
+  // width: 30%;
   font-size: $size-regular;
   font-weight: 600;
   margin-right: 2vw;
@@ -165,11 +159,9 @@ form {
   color: $black;
 }
 .form-input {
-  width: 100% - 30%;
   border: 2px solid $black;
-  padding: 0.5em 0.5em;
+  padding: 0.2em 0.2em;
   font-size: $size-small;
-
   &::placeholder {
     color: inherit;
     font-size: inherit;
@@ -180,13 +172,10 @@ form {
 
 /* Submit */
 .submit-wrapper {
-  width: 100%;
-  margin-top: 2em;
   .btn-submit {
     border: none;
     display: block;
     padding: 0.4em 0.8em;
-    margin-left: auto;
     background-color: $black;
     color: $primary;
     font-size: $size-small;
@@ -197,6 +186,32 @@ form {
 }
 
 /* -page-related- */
+.login,
+.signup {
+  .input-wrapper {
+    align-items: center;
+    width: 70%;
+    margin: 4vh auto 0 auto;
+  }
+  .form-label {
+    width: 30%;
+    & + .form-input {
+      width: 100% - 30%;
+    }
+  }
+  .form-input {
+    width: 100%;
+    padding: 0.5em 0.5em;
+  }
+  .submit-wrapper {
+    width: 100%;
+    margin-top: 2em;
+    .btn-submit {
+      margin-left: auto;
+    }
+  }
+}
+
 .gamepage {
   &-theme {
     text-align: center;
@@ -216,8 +231,18 @@ form {
     width: 100%;
     border: 4px solid $black;
     padding: 1em 1em;
-    .card {
-      // margin: 1em 0.4em 1em 1em;
+  }
+  &-controller {
+    display: flex;
+    .submit-wrapper {
+      margin-left: 0;
     }
+  }
+  .input-wrapper {
+    width: auto;
+    margin: 0;
+  }
+  .form-input {
+    width: auto;
   }
 }
