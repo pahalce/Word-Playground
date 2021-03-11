@@ -59,6 +59,10 @@ body {
   color: $primary;
   text-align: center;
 }
+/* effects */
+.shadow {
+  box-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+}
 
 /* -components- */
 /* header */
@@ -234,15 +238,5 @@ body {
   }
   &-controller {
     display: flex;
-    .submit-wrapper {
-      margin-left: 0;
-    }
-  }
-  .input-wrapper {
-    width: auto;
-    margin: 0;
-  }
-  .form-input {
-    width: auto;
   }
 }

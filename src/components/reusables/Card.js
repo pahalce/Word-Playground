@@ -4,7 +4,7 @@ import ClickableIcon from "./ClickableIcon";
 
 const Card = ({ title, content, bottomText, width, height, fontSize }) => {
   return (
-    <div className="card" style={{ width: width, height: height, fontSize: fontSize }}>
+    <div className="card shadow" style={{ width: width, height: height, fontSize: fontSize }}>
       <div className="card-banner">{title}</div>
       <div className="card-content">
         <div className="card-content-text">{content}</div>

@@ -9,7 +9,7 @@ const Input = ({ label, type, placeholder = "記入してください", autoComp
         </label>
       )}
       <input
-        className="form-input"
+        className="form-input shadow"
         type={type}
         name={type + "-form"}
         id={type}

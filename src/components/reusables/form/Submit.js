@@ -7,7 +7,7 @@ const Submit = () => {
 
   return (
     <div className="submit-wrapper">
-      <input className="btn-submit" type="submit" value="送信" onClick={handleClick} />
+      <input className="btn-submit shadow" type="submit" value="送信" onClick={handleClick} />
     </div>
   );
 };
