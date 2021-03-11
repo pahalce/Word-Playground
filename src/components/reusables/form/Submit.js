@@ -2,7 +2,7 @@ import React from "react";
 
 const Submit = () => {
   const handleClick = (e) => {
-    e.preventDefault();
+    // e.preventDefault();
   };
 
   return (
