@@ -9,6 +9,9 @@ const Navbar = ({ user }) => {
           Word Playground
         </Link>
         <ul className="nav">
+          <Link to="/gamepage" className="nav-item link">
+            ゲーム
+          </Link>
           {user && <li className="nav-item">ルーム作成</li>}
           {user && <li className="nav-item">プロフィール</li>}
           <Link to="/login" className="nav-item link">
