@@ -9,11 +9,11 @@ $pure-black: #000000;
 $grey: #393e46;
 $primary: #00adb5;
 /* sizes */
-$size-smaller: 1em;
-$size-small: 1.2em;
-$size-regular: 1.6em;
-$size-big: 2em;
-$size-bigger: 3em;
+$size-smaller: 1rem;
+$size-small: 1.2rem;
+$size-regular: 1.6rem;
+$size-big: 2rem;
+$size-bigger: 3rem;
 
 /* -setup styles- */
 html {
@@ -31,6 +31,7 @@ body {
   margin: 0;
   padding: 0;
   font-family: "Noto Serif";
+  color: $black;
   background-color: $white;
 }
 
@@ -191,5 +192,19 @@ form {
     &:hover {
       background-color: $grey;
     }
+  }
+}
+
+/* -page-related- */
+.theme {
+  text-align: center;
+  padding-top: 4vh;
+  font-size: $size-regular;
+  font-weight: 600;
+
+  span {
+    font-size: $size-bigger;
+    font-weight: 800;
+    color: $primary;
   }
 }

@@ -1,6 +1,5 @@
 import React from "react";
-import Card from "./Card";
-import ClickableIcon from "./ClickableIcon";
+import ClickableIcon from "../reusables/ClickableIcon";
 import { BsHeart, BsFillHeartFill } from "react-icons/bs";
 
 const MainPage = () => {

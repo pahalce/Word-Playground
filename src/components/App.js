@@ -1,9 +1,10 @@
 import { useState } from "react";
 import { BrowserRouter as Router, Route } from "react-router-dom";
-import MainPage from "./MainPage";
 import Navbar from "./Navbar";
-import Signup from "./form/Signup";
+import MainPage from "./pages/MainPage";
+// import GamePage from "./pages/GamePage";
 import Login from "./form/Login";
+import Signup from "./form/Signup";
 
 function App() {
   const [user, setUser] = useState(null);
@@ -15,6 +16,7 @@ function App() {
           <Route exact path="/" component={MainPage} />
           <Route path="/signup" component={Signup} />
           <Route path="/login" component={Login} />
+          {/* <Route path="/gamepage" component={GamePage} /> */}
         </div>
       </Router>
     </div>
