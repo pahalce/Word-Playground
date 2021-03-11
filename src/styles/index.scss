@@ -97,20 +97,21 @@ body {
 /* Card */
 .card {
   text-align: center;
+  height: 60vh;
+  font-size: $size-big;
+  font-weight: 800;
   &-banner {
-    font-size: $size-big;
-    font-weight: 800;
+    line-height: 1.8em;
     background-color: $grey;
     color: $white;
   }
   &-content {
     position: relative;
-    height: 50vh;
+    height: calc(100% - 1.8em);
     background-color: $pure-white;
     color: $grey;
     &-text {
-      font-size: $size-regular;
-      font-weight: 600;
+      font-size: 0.8em;
       position: absolute;
       left: 50%;
       top: 50%;
@@ -122,7 +123,7 @@ body {
       position: absolute;
       right: 2vw;
       bottom: 1vw;
-      font-size: $size-small;
+      font-size: 0.6em;
     }
   }
 }
@@ -196,15 +197,27 @@ form {
 }
 
 /* -page-related- */
-.theme {
-  text-align: center;
-  padding-top: 4vh;
-  font-size: $size-regular;
-  font-weight: 600;
-
-  span {
-    font-size: $size-bigger;
-    font-weight: 800;
-    color: $primary;
+.gamepage {
+  &-theme {
+    text-align: center;
+    padding-top: 4vh;
+    font-size: $size-regular;
+    font-weight: 600;
+    span {
+      font-size: $size-bigger;
+      font-weight: 800;
+      color: $primary;
+    }
+  }
+  &-board {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-around;
+    width: 100%;
+    border: 4px solid $black;
+    padding: 1em 1em;
+    .card {
+      // margin: 1em 0.4em 1em 1em;
+    }
   }
 }
