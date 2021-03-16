@@ -6,6 +6,8 @@ import GamePage from "./pages/GamePage";
 import Login from "./pages/Login";
 import Signup from "./pages/Signup";
 import { AuthProvider } from "../contexts/AuthContext";
+import Profile from "./pages/Profile";
+import PrivateRoute from "./reusables/PrivateRoute";
 
 function App() {
   return (
@@ -16,8 +18,9 @@ function App() {
           <div className="container">
             <Route path="/signup" component={Signup} />
             <Route path="/login" component={Login} />
+            <PrivateRoute path="/profile" component={Profile} />
             <Route exact path="/" component={MainPage} />
-            <Route path="/gamepage" render={() => <GamePage letter="あ" adj="おいしい" />} />
+            <PrivateRoute path="/gamepage" render={() => <GamePage letter="あ" adj="おいしい" />} />
           </div>
         </AuthProvider>
       </Router>

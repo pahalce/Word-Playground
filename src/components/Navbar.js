@@ -1,10 +1,19 @@
 import React from "react";
-import { Link } from "react-router-dom";
+import { Link, useHistory } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
 
 const Navbar = () => {
-  const handleLogout = () => {};
-  const { currentUser } = useAuth();
+  const { currentUser, logout } = useAuth();
+  const history = useHistory();
+  const handleLogout = async () => {
+    try {
+      await logout();
+      window.alert("logged out");
+      history.push("/login");
+    } catch {
+      window.alert("failed to logout");
+    }
+  };
   return (
     <div className="header">
       <div className="header-container">
@@ -18,7 +27,11 @@ const Navbar = () => {
             </Link>
           )}
           {currentUser && <li className="nav-item">ルーム作成</li>}
-          {currentUser && <li className="nav-item">プロフィール</li>}
+          {currentUser && (
+            <Link to="/profile" className="nav-item link">
+              プロフィール
+            </Link>
+          )}
           {!currentUser && (
             <Link to="/login" className="nav-item link">
               ログイン
