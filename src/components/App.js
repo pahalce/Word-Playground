@@ -5,20 +5,23 @@ import MainPage from "./pages/MainPage";
 import GamePage from "./pages/GamePage";
 import Login from "./pages/Login";
 import Signup from "./pages/Signup";
+import { AuthProvider } from "../contexts/AuthContext";
 
 function App() {
   const [user, setUser] = useState(null);
   return (
     <div className="App">
-      <Router>
-        <Navbar user={user} />
-        <div className="container">
-          <Route exact path="/" component={MainPage} />
-          <Route path="/signup" component={Signup} />
-          <Route path="/login" component={Login} />
-          <Route path="/gamepage" render={() => <GamePage letter="あ" adj="おいしい" />} />
-        </div>
-      </Router>
+      <AuthProvider>
+        <Router>
+          <Navbar user={user} />
+          <div className="container">
+            <Route path="/signup" component={Signup} />
+            <Route path="/login" component={Login} />
+            <Route exact path="/" component={MainPage} />
+            <Route path="/gamepage" render={() => <GamePage letter="あ" adj="おいしい" />} />
+          </div>
+        </Router>
+      </AuthProvider>
     </div>
   );
 }
