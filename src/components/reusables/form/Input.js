@@ -1,6 +1,7 @@
 import React from "react";
 
 const Input = ({
+  id,
   label,
   type,
   required = true,
@@ -11,7 +12,7 @@ const Input = ({
   return (
     <div className="input-wrapper">
       {label && (
-        <label className="form-label" htmlFor={type}>
+        <label className="form-label" htmlFor={id}>
           {label}
         </label>
       )}
@@ -19,8 +20,8 @@ const Input = ({
         className="form-input shadow"
         type={type}
         required={required}
-        name={type + "-form"}
-        id={type}
+        name={id + "-form"}
+        id={id}
         placeholder={placeholder}
         autoComplete={autoComplete}
         ref={inputRef}

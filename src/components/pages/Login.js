@@ -6,8 +6,8 @@ const Login = () => {
     <div className="login">
       <h1 className="text-title">ログイン</h1>
       <form>
-        <Input label="Eメール:" type="email" autoComplete="email" />
-        <Input label="パスワード:" type="password" autoComplete="current-password" />
+        <Input id="email" label="Eメール:" type="email" autoComplete="email" />
+        <Input id="password" label="パスワード:" type="password" autoComplete="current-password" />
         <Submit />
       </form>
     </div>

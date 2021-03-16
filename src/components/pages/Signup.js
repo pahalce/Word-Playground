@@ -22,9 +22,28 @@ const Signup = () => {
     <div className="signup">
       <h1 className="text-title">サインアップ</h1>
       <form onSubmit={handleSubmit}>
-        <Input label="Eメール:" type="email" autoComplete="email" inputRef={emailRef} />
-        <Input label="パスワード:" type="password" autoComplete="new-password" inputRef={passwordRef} />
-        <Input label="ニックネーム:" type="text" autoComplete="username" inputRef={nicknameRef} />
+        <Input label="Eメール:" id="email" type="email" autoComplete="email" inputRef={emailRef} />
+        <Input
+          label="パスワード:"
+          id="password"
+          type="password"
+          autoComplete="new-password"
+          inputRef={passwordRef}
+        />
+        <Input
+          label="パスワード(確認用):"
+          id="password-comfirm"
+          type="password"
+          autoComplete="new-password"
+          inputRef={passwordRef}
+        />
+        <Input
+          id="nickname"
+          label="ニックネーム:"
+          type="text"
+          autoComplete="username"
+          inputRef={nicknameRef}
+        />
         <Submit />
       </form>
     </div>
