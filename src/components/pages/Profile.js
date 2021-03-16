@@ -3,12 +3,18 @@ import { Link } from "react-router-dom";
 import { useAuth } from "../../contexts/AuthContext";
 
 const Profile = () => {
-  const { currentUser } = useAuth();
+  const { currentUser, username } = useAuth();
   return (
     <div className="profile">
       <h1 className="text-title">プロフィール</h1>
-      <strong>Email:</strong>
-      {currentUser.email}
+      <p>
+        <strong>Eメール:</strong>
+        {currentUser.email}
+      </p>
+      <p>
+        <strong>ユーザー名:</strong>
+        {username}
+      </p>
       <div className="form-buttom-text">
         <Link to="/update-profile" className="link link-text">
           プロフィール更新

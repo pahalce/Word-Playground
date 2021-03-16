@@ -10,7 +10,7 @@ const Signup = () => {
   const emailRef = useRef("");
   const passwordRef = useRef("");
   const passwordConfirmRef = useRef("");
-  const nicknameRef = useRef("");
+  const usernameRef = useRef("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const history = useHistory();
@@ -23,7 +23,8 @@ const Signup = () => {
     try {
       setError("");
       setLoading(true);
-      await signup(emailRef.current.value, passwordRef.current.value);
+      await signup(emailRef.current.value, passwordRef.current.value, usernameRef.current.value);
+
       setLoading(false);
       history.push("/");
     } catch (err) {
@@ -65,13 +66,13 @@ const Signup = () => {
           inputRef={passwordConfirmRef}
         />
         <Input
-          id="nickname"
+          id="username"
           label="ニックネーム:"
           type="text"
           required={true}
           placeholder="記入してください"
           autoComplete="username"
-          inputRef={nicknameRef}
+          inputRef={usernameRef}
         />
         <Submit disabled={loading} />
       </form>

@@ -3,18 +3,16 @@ import Input from "../reusables/form/Input";
 import Submit from "../reusables/form/Submit";
 import { useAuth } from "../../contexts/AuthContext";
 import Alert from "../reusables/Alert";
-import { useHistory } from "react-router-dom";
 
 const UpdateProfile = () => {
-  const { currentUser, updateEmail, updatePassword } = useAuth();
+  const { currentUser, updateEmail, updatePassword, updateUsername } = useAuth();
   const emailRef = useRef("");
   const passwordRef = useRef("");
   const passwordConfirmRef = useRef("");
-  const nicknameRef = useRef("");
+  const usernameRef = useRef("");
   const [error, setError] = useState("");
   const [message, setMessage] = useState("");
   const [loading, setLoading] = useState(false);
-  const history = useHistory();
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -32,6 +30,10 @@ const UpdateProfile = () => {
     if (passwordRef.current.value) {
       promises.push(updatePassword(passwordRef.current.value));
     }
+    if (usernameRef.current.value) {
+      promises.push(updateUsername(usernameRef.current.value));
+    }
+
     if (promises.length === 0) {
       setLoading(false);
       setError("アカウント情報に変更がありません");
@@ -83,12 +85,12 @@ const UpdateProfile = () => {
           inputRef={passwordConfirmRef}
         />
         <Input
-          id="nickname"
+          id="username"
           label="ニックネーム:"
           type="text"
           placeholder="変更しないなら空欄"
           autoComplete="username"
-          inputRef={nicknameRef}
+          inputRef={usernameRef}
         />
         <Submit disabled={loading} />
       </form>
