@@ -53,10 +53,17 @@ input:focus {
 
 .link-text {
   color: $primary;
+  &:hover {
+    color: $grey;
+  }
 }
 
 form {
   text-align: center;
+}
+
+.form-buttom-text {
+  margin-top: 2em;
 }
 
 /* -reusables- */
@@ -239,7 +246,9 @@ form {
 
 /* -page-related- */
 .login,
-.signup {
+.signup,
+.update-profile,
+.forgot-password {
   .input-wrapper {
     align-items: center;
     width: 70%;
@@ -292,4 +301,14 @@ form {
       margin-left: 0.1em;
     }
   }
+}
+
+.profile {
+  text-align: center;
+  font-size: $size-small;
+  color: $black;
+}
+
+.update-profile {
+  text-align: center;
 }

@@ -9,8 +9,8 @@ const Profile = () => {
       <h1 className="text-title">プロフィール</h1>
       <strong>Email:</strong>
       {currentUser.email}
-      <div>
-        <Link to="/update-profile" className="link link-text text-big">
+      <div className="form-buttom-text">
+        <Link to="/update-profile" className="link link-text">
           プロフィール更新
         </Link>
       </div>

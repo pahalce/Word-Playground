@@ -27,7 +27,7 @@ const ForgotPassword = () => {
   };
 
   return (
-    <div className="login">
+    <div className="forgot-password">
       <h1 className="text-title">パスワードリセット</h1>
       <form onSubmit={handleSubmit}>
         <Alert msg={error ? error : message} type={error ? "danger" : "success"} />
@@ -41,8 +41,8 @@ const ForgotPassword = () => {
           inputRef={emailRef}
         />
         <div className="form-buttom-text">
-          <Link to="/login" className="link">
-            ログイン
+          <Link to="/login" className="link link-text">
+            ログイン画面へ
           </Link>
         </div>
         <Submit disabled={loading} />

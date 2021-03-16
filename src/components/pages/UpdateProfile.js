@@ -34,7 +34,7 @@ const UpdateProfile = () => {
     }
     if (promises.length === 0) {
       setLoading(false);
-      setError("アカウント情報を更新してください");
+      setError("アカウント情報に変更がありません");
       return;
     }
 
@@ -51,7 +51,7 @@ const UpdateProfile = () => {
   };
 
   return (
-    <div className="signup">
+    <div className="update-profile">
       <h1 className="text-title">プロフィール更新</h1>
       <form onSubmit={handleSubmit}>
         <Alert msg={error ? error : message} type={error ? "danger" : "success"} />
