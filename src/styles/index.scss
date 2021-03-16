@@ -209,7 +209,19 @@ input:focus {
     &:hover {
       background-color: $grey;
     }
+    &:disabled {
+      background-color: $black;
+      color: $grey;
+    }
   }
+}
+
+/* Alert */
+.alert {
+  height: 1em;
+  text-align: center;
+  font-size: $size-small;
+  color: rgba(218, 24, 18, 1);
 }
 
 /* -page-related- */

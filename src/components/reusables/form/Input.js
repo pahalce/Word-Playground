@@ -1,14 +1,6 @@
 import React from "react";
 
-const Input = ({
-  id,
-  label,
-  type,
-  required = true,
-  placeholder = "記入してください",
-  autoComplete,
-  inputRef,
-}) => {
+const Input = ({ id, label, inputRef, ...rest }) => {
   return (
     <div className="input-wrapper">
       {label && (
@@ -16,16 +8,7 @@ const Input = ({
           {label}
         </label>
       )}
-      <input
-        className="form-input shadow"
-        type={type}
-        required={required}
-        name={id + "-form"}
-        id={id}
-        placeholder={placeholder}
-        autoComplete={autoComplete}
-        ref={inputRef}
-      />
+      <input className="form-input shadow" name={id + "-form"} id={id} ref={inputRef} {...rest} />
     </div>
   );
 };
