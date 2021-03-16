@@ -3,35 +3,34 @@ import Input from "../reusables/form/Input";
 import Submit from "../reusables/form/Submit";
 import { useAuth } from "../../contexts/AuthContext";
 import Alert from "../reusables/Alert";
-import { Link, useHistory } from "react-router-dom";
+import { Link } from "react-router-dom";
 
-const Login = () => {
-  const { login } = useAuth();
+const ForgotPassword = () => {
+  const { resetPassword } = useAuth();
   const emailRef = useRef("");
-  const passwordRef = useRef("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
-  const history = useHistory();
+  const [message, setMessage] = useState("");
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
+      setMessage("");
       setError("");
       setLoading(true);
-      await login(emailRef.current.value, passwordRef.current.value);
-      setLoading(false);
-      history.push("/");
+      await resetPassword(emailRef.current.value);
+      setMessage("パスワード再設定用のメールを送信しました");
     } catch (err) {
       setError(err.message);
-      setLoading(false);
     }
+    setLoading(false);
   };
 
   return (
     <div className="login">
-      <h1 className="text-title">ログイン</h1>
+      <h1 className="text-title">パスワードリセット</h1>
       <form onSubmit={handleSubmit}>
-        <Alert msg={error} />
+        <Alert msg={error ? error : message} type={error ? "danger" : "success"} />
         <Input
           label="Eメール:"
           id="email"
@@ -40,17 +39,9 @@ const Login = () => {
           autoComplete="email"
           inputRef={emailRef}
         />
-        <Input
-          label="パスワード:"
-          id="password"
-          type="password"
-          placeholder="記入してください"
-          autoComplete="new-password"
-          inputRef={passwordRef}
-        />
         <div className="form-buttom-text">
-          <Link to="/forgot-password" className="link">
-            パスワードを忘れた！
+          <Link to="/login" className="link">
+            ログイン
           </Link>
         </div>
         <Submit disabled={loading} />
@@ -59,4 +50,4 @@ const Login = () => {
   );
 };
 
-export default Login;
+export default ForgotPassword;

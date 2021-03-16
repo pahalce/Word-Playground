@@ -24,12 +24,12 @@ const Signup = () => {
       setError("");
       setLoading(true);
       await signup(emailRef.current.value, passwordRef.current.value);
+      setLoading(false);
       history.push("/");
     } catch (err) {
       setError(err.message);
+      setLoading(false);
     }
-
-    setLoading(false);
   };
 
   return (
