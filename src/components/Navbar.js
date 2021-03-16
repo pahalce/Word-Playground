@@ -1,7 +1,10 @@
 import React from "react";
 import { Link } from "react-router-dom";
+import { useAuth } from "../contexts/AuthContext";
 
-const Navbar = ({ user }) => {
+const Navbar = () => {
+  const handleLogout = () => {};
+  const { currentUser } = useAuth();
   return (
     <div className="header">
       <div className="header-container">
@@ -9,18 +12,28 @@ const Navbar = ({ user }) => {
           Word Playground
         </Link>
         <ul className="nav">
-          <Link to="/gamepage" className="nav-item link">
-            ゲーム
-          </Link>
-          {user && <li className="nav-item">ルーム作成</li>}
-          {user && <li className="nav-item">プロフィール</li>}
-          <Link to="/login" className="nav-item link">
-            ログイン
-          </Link>
-          <Link to="/signup" className="nav-item link">
-            サインアップ
-          </Link>
-          {user && <li className="nav-item">ログアウト</li>}
+          {currentUser && (
+            <Link to="/gamepage" className="nav-item link">
+              ゲーム
+            </Link>
+          )}
+          {currentUser && <li className="nav-item">ルーム作成</li>}
+          {currentUser && <li className="nav-item">プロフィール</li>}
+          {!currentUser && (
+            <Link to="/login" className="nav-item link">
+              ログイン
+            </Link>
+          )}
+          {!currentUser && (
+            <Link to="/signup" className="nav-item link">
+              サインアップ
+            </Link>
+          )}
+          {currentUser && (
+            <li className="nav-item" onClick={handleLogout}>
+              ログアウト
+            </li>
+          )}
         </ul>
       </div>
     </div>

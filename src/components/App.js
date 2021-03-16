@@ -8,12 +8,11 @@ import Signup from "./pages/Signup";
 import { AuthProvider } from "../contexts/AuthContext";
 
 function App() {
-  const [user, setUser] = useState(null);
   return (
     <div className="App">
       <Router>
         <AuthProvider>
-          <Navbar user={user} />
+          <Navbar />
           <div className="container">
             <Route path="/signup" component={Signup} />
             <Route path="/login" component={Login} />
