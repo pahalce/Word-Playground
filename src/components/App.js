@@ -11,8 +11,8 @@ function App() {
   const [user, setUser] = useState(null);
   return (
     <div className="App">
-      <AuthProvider>
-        <Router>
+      <Router>
+        <AuthProvider>
           <Navbar user={user} />
           <div className="container">
             <Route path="/signup" component={Signup} />
@@ -20,8 +20,8 @@ function App() {
             <Route exact path="/" component={MainPage} />
             <Route path="/gamepage" render={() => <GamePage letter="あ" adj="おいしい" />} />
           </div>
-        </Router>
-      </AuthProvider>
+        </AuthProvider>
+      </Router>
     </div>
   );
 }

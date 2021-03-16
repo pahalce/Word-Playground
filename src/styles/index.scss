@@ -51,6 +51,15 @@ input:focus {
   text-decoration: inherit;
 }
 
+.form-buttom-text {
+  width: 100%;
+  color: $primary;
+  margin-right: auto;
+}
+form {
+  text-align: center;
+}
+
 /* -reusables- */
 /* text-styles */
 .text-primary {

@@ -3,6 +3,7 @@ import Input from "../reusables/form/Input";
 import Submit from "../reusables/form/Submit";
 import { useAuth } from "../../contexts/AuthContext";
 import Alert from "../reusables/Alert";
+import { useHistory } from "react-router-dom";
 
 const Signup = () => {
   const { signup } = useAuth();
@@ -12,6 +13,7 @@ const Signup = () => {
   const nicknameRef = useRef("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const history = useHistory();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -22,6 +24,7 @@ const Signup = () => {
       setError("");
       setLoading(true);
       await signup(emailRef.current.value, passwordRef.current.value);
+      history.push("/");
     } catch (err) {
       setError(err.message);
     }
@@ -67,7 +70,6 @@ const Signup = () => {
           inputRef={nicknameRef}
         />
         <Submit disabled={loading} />
-        {loading.toString()}
       </form>
     </div>
   );
