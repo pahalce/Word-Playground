@@ -6,11 +6,14 @@ const Profile = () => {
   const { currentUser } = useAuth();
   return (
     <div className="profile">
+      <h1 className="text-title">プロフィール</h1>
       <strong>Email:</strong>
       {currentUser.email}
-      <Link to="/update-profile" className="link">
-        プロフィール更新
-      </Link>
+      <div>
+        <Link to="/update-profile" className="link link-text text-big">
+          プロフィール更新
+        </Link>
+      </div>
     </div>
   );
 };

@@ -5,43 +5,63 @@ import { useAuth } from "../../contexts/AuthContext";
 import Alert from "../reusables/Alert";
 import { useHistory } from "react-router-dom";
 
-const Signup = () => {
-  const { signup } = useAuth();
+const UpdateProfile = () => {
+  const { currentUser, updateEmail, updatePassword } = useAuth();
   const emailRef = useRef("");
   const passwordRef = useRef("");
   const passwordConfirmRef = useRef("");
   const nicknameRef = useRef("");
   const [error, setError] = useState("");
+  const [message, setMessage] = useState("");
   const [loading, setLoading] = useState(false);
   const history = useHistory();
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = (e) => {
     e.preventDefault();
     if (passwordRef.current.value !== passwordConfirmRef.current.value) {
       return setError("passwords do not match");
     }
-    try {
-      setError("");
-      setLoading(true);
-      await signup(emailRef.current.value, passwordRef.current.value);
-      setLoading(false);
-      history.push("/");
-    } catch (err) {
-      setError(err.message);
-      setLoading(false);
+
+    const promises = [];
+    setError("");
+    setMessage("");
+    setLoading(true);
+    if (emailRef.current.value !== currentUser.email) {
+      promises.push(updateEmail(emailRef.current.value));
     }
+    if (passwordRef.current.value) {
+      promises.push(updatePassword(passwordRef.current.value));
+    }
+    if (promises.length === 0) {
+      setLoading(false);
+      setError("アカウント情報を更新してください");
+      return;
+    }
+
+    Promise.all(promises)
+      .then(() => {
+        setMessage("アカウント情報を更新しました");
+      })
+      .catch((err) => {
+        setError(err.message);
+      })
+      .finally(() => {
+        setLoading(false);
+      });
   };
 
   return (
     <div className="signup">
-      <h1 className="text-title">サインアップ</h1>
+      <h1 className="text-title">プロフィール更新</h1>
       <form onSubmit={handleSubmit}>
-        <Alert msg={error} />
+        <Alert msg={error ? error : message} type={error ? "danger" : "success"} />
+
         <Input
           label="Eメール:"
           id="email"
           type="email"
           required={true}
+          defaultValue={currentUser.email}
           placeholder="記入してください"
           autoComplete="email"
           inputRef={emailRef}
@@ -50,8 +70,7 @@ const Signup = () => {
           label="パスワード:"
           id="password"
           type="password"
-          required={true}
-          placeholder="記入してください"
+          placeholder="変更しないなら空欄"
           autoComplete="new-password"
           inputRef={passwordRef}
         />
@@ -59,8 +78,7 @@ const Signup = () => {
           label="パスワード(確認用):"
           id="password-comfirm"
           type="password"
-          required={true}
-          placeholder="記入してください"
+          placeholder="変更しないなら空欄"
           autoComplete="new-password"
           inputRef={passwordConfirmRef}
         />
@@ -68,8 +86,7 @@ const Signup = () => {
           id="nickname"
           label="ニックネーム:"
           type="text"
-          required={true}
-          placeholder="記入してください"
+          placeholder="変更しないなら空欄"
           autoComplete="username"
           inputRef={nicknameRef}
         />
@@ -79,4 +96,4 @@ const Signup = () => {
   );
 };
 
-export default Signup;
+export default UpdateProfile;

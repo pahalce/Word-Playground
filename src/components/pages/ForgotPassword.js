@@ -35,6 +35,7 @@ const ForgotPassword = () => {
           label="Eメール:"
           id="email"
           type="email"
+          required={true}
           placeholder="記入してください"
           autoComplete="email"
           inputRef={emailRef}

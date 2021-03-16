@@ -9,6 +9,7 @@ import { AuthProvider } from "../contexts/AuthContext";
 import Profile from "./pages/Profile";
 import PrivateRoute from "./reusables/PrivateRoute";
 import ForgotPassword from "./pages/ForgotPassword";
+import UpdateProfile from "./pages/UpdateProfile";
 
 function App() {
   return (
@@ -21,6 +22,7 @@ function App() {
             <Route path="/login" component={Login} />
             <Route path="/forgot-password" component={ForgotPassword} />
             <PrivateRoute path="/profile" component={Profile} />
+            <PrivateRoute path="/update-profile" component={UpdateProfile} />
             <Route exact path="/" component={MainPage} />
             <PrivateRoute path="/gamepage" render={() => <GamePage letter="あ" adj="おいしい" />} />
           </div>

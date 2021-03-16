@@ -36,6 +36,7 @@ const Login = () => {
           label="Eメール:"
           id="email"
           type="email"
+          required={true}
           placeholder="記入してください"
           autoComplete="email"
           inputRef={emailRef}
@@ -44,12 +45,13 @@ const Login = () => {
           label="パスワード:"
           id="password"
           type="password"
+          required={true}
           placeholder="記入してください"
           autoComplete="new-password"
           inputRef={passwordRef}
         />
         <div className="form-buttom-text">
-          <Link to="/forgot-password" className="link">
+          <Link to="/forgot-password" className="link link-text">
             パスワードを忘れた！
           </Link>
         </div>
