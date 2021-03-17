@@ -59,7 +59,21 @@ export const AuthProvider = ({ children }) => {
   useEffect(() => {
     const unsubscribe = auth.onAuthStateChanged((user) => {
       setcurrentUser(user);
-      setLoading(false);
+      db.collection("users")
+        .doc(user.uid)
+        .get()
+        .then((doc) => {
+          if (doc.exists) {
+            setUsername(doc.data().username);
+          }
+          setLoading(false);
+        })
+        .catch(() => {
+          window.alert("接続に失敗しました");
+        })
+        .finally(() => {
+          setLoading(false);
+        });
     });
     return unsubscribe;
   }, []);

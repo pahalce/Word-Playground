@@ -3,6 +3,7 @@ import Input from "../reusables/form/Input";
 import Submit from "../reusables/form/Submit";
 import { useAuth } from "../../contexts/AuthContext";
 import Alert from "../reusables/Alert";
+import { Link } from "react-router-dom";
 
 const UpdateProfile = () => {
   const { currentUser, updateEmail, updatePassword, updateUsername } = useAuth();
@@ -92,6 +93,11 @@ const UpdateProfile = () => {
           autoComplete="username"
           inputRef={usernameRef}
         />
+        <div className="form-bottom-text">
+          <Link to="/profile" className="link link-text">
+            プロフィールへ
+          </Link>
+        </div>
         <Submit disabled={loading} />
       </form>
     </div>

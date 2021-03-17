@@ -15,7 +15,7 @@ const Profile = () => {
         <strong>ユーザー名:</strong>
         {username}
       </p>
-      <div className="form-buttom-text">
+      <div className="form-bottom-text">
         <Link to="/update-profile" className="link link-text">
           プロフィール更新
         </Link>

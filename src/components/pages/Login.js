@@ -50,7 +50,7 @@ const Login = () => {
           autoComplete="new-password"
           inputRef={passwordRef}
         />
-        <div className="form-buttom-text">
+        <div className="form-bottom-text">
           <Link to="/forgot-password" className="link link-text">
             パスワードを忘れた！
           </Link>

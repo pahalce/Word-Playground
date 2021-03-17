@@ -40,7 +40,7 @@ const ForgotPassword = () => {
           autoComplete="email"
           inputRef={emailRef}
         />
-        <div className="form-buttom-text">
+        <div className="form-bottom-text">
           <Link to="/login" className="link link-text">
             ログイン画面へ
           </Link>
