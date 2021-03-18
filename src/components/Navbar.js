@@ -1,10 +1,10 @@
-import React from "react";
 import { Link, useHistory } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
 
 const Navbar = () => {
   const { currentUser, logout } = useAuth();
   const history = useHistory();
+
   const handleLogout = async () => {
     try {
       await logout();
@@ -22,11 +22,10 @@ const Navbar = () => {
         </Link>
         <ul className="nav">
           {currentUser && (
-            <Link to="/gamepage" className="nav-item link">
-              ゲーム
+            <Link to="/rooms" className="nav-item link">
+              ルーム
             </Link>
           )}
-          {currentUser && <li className="nav-item">ルーム作成</li>}
           {currentUser && (
             <Link to="/profile" className="nav-item link">
               プロフィール
