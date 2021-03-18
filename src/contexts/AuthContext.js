@@ -59,6 +59,10 @@ export const AuthProvider = ({ children }) => {
   useEffect(() => {
     const unsubscribe = auth.onAuthStateChanged((user) => {
       setcurrentUser(user);
+      if (!user) {
+        setLoading(false);
+        return;
+      }
       db.collection("users")
         .doc(user.uid)
         .get()
@@ -68,8 +72,8 @@ export const AuthProvider = ({ children }) => {
           }
           setLoading(false);
         })
-        .catch(() => {
-          window.alert("接続に失敗しました");
+        .catch((err) => {
+          console.log(err);
         })
         .finally(() => {
           setLoading(false);
