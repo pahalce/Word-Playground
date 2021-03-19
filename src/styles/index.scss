@@ -86,7 +86,8 @@ form {
 /* layouts */
 .flex {
   display: flex;
-  justify-content: space-evenly;
+  flex-wrap: wrap;
+  justify-content: space-around;
 }
 
 /* -components- */
@@ -174,6 +175,22 @@ form {
   }
 }
 
+/* Button */
+.button {
+  border: none;
+  padding: 0.2em 1.6em;
+  background-color: $black;
+  color: $primary;
+  font-size: $size-small;
+  &:hover {
+    background-color: $grey;
+  }
+  &:disabled {
+    background-color: $black;
+    color: $grey;
+  }
+}
+
 /* BtnIcon */
 .btn-icon {
   position: relative;
@@ -191,6 +208,19 @@ form {
     padding: 0.1em;
     transform: translate(-50%, -50%);
   }
+}
+
+.room-link {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 30vw;
+  background-color: $pure-white;
+  font-size: $size-regular;
+  font-weight: 600;
+  color: $black;
+  padding: 0.6em 1em;
+  margin-top: 2vh;
 }
 
 /* Input */
@@ -317,4 +347,12 @@ form {
 
 .update-profile {
   text-align: center;
+}
+
+.rooms {
+  .room-link {
+    &-name {
+      margin-right: 1em;
+    }
+  }
 }
