@@ -19,17 +19,16 @@ const CreateRoom = () => {
     try {
       setError("");
       setLoading(true);
-      console.log(`currentUser.id`, currentUser.uid);
-      await db.rooms.doc().set({
+      const docRef = await db.rooms.add({
         roomName: roomNameRef.current.value,
         owner: username,
         maxPlayers: maxPlayersRef.current.value,
-        players: { username },
+        players: [username],
         status: "WAITING",
         createdAt: db.getCurrentTimestamp(),
       });
       setLoading(false);
-      history.push("/rooms");
+      history.push("/gamepage/" + docRef.id);
     } catch (err) {
       setError(err.message);
       setLoading(false);
