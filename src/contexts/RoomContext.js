@@ -15,12 +15,11 @@ export const RoomProvider = ({ children }) => {
     // for getting updates only while user is in the Rooms page
     let unsubscribe;
     if (location.pathname === "/rooms") {
-      unsubscribe = db.collection("rooms").onSnapshot(
+      unsubscribe = db.rooms.onSnapshot(
         (docs) => {
-          console.log("changed room");
           const roomsArr = [];
           docs.forEach((doc) => {
-            roomsArr.push(doc.data());
+            roomsArr.push(db.formatDoc(doc));
           });
           setRooms(roomsArr);
         },

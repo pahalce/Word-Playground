@@ -13,9 +13,16 @@ var firebaseConfig = {
 };
 // Initialize Firebase
 const app = firebase.initializeApp(firebaseConfig);
+const firestore = app.firestore();
+
+export const db = {
+  users: firestore.collection("users"),
+  rooms: firestore.collection("rooms"),
+  formatDoc: (doc) => {
+    return { id: doc.id, ...doc.data() };
+  },
+  getCurrentTimestamp: firebase.firestore.FieldValue.serverTimestamp,
+};
 
 export const auth = app.auth();
-const db = firebase.firestore();
-db.settings({ timestampsInSnapshots: true });
-export { db };
 export default app;

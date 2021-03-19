@@ -13,7 +13,7 @@ export const AuthProvider = ({ children }) => {
 
   const signup = (email, password, username) => {
     return auth.createUserWithEmailAndPassword(email, password).then((cred) => {
-      db.collection("users")
+      db.users
         .doc(cred.user.uid)
         .set({
           username: username,
@@ -45,8 +45,7 @@ export const AuthProvider = ({ children }) => {
   };
 
   const updateUsername = (username) => {
-    return db
-      .collection("users")
+    return db.users
       .doc(currentUser.uid)
       .set({
         username: username,
@@ -63,7 +62,7 @@ export const AuthProvider = ({ children }) => {
         setLoading(false);
         return;
       }
-      db.collection("users")
+      db.users
         .doc(user.uid)
         .get()
         .then((doc) => {

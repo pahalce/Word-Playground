@@ -5,7 +5,7 @@ import { useRoom } from "../../contexts/RoomContext";
 const Rooms = () => {
   const { rooms } = useRoom();
   const roomItems = rooms.map((room) => (
-    <div key={room.roomName} className="flex shadow">
+    <div key={room.id} className="flex shadow">
       {room.roomName}
       <button>入室</button>
     </div>
