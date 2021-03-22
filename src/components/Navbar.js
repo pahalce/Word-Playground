@@ -1,9 +1,10 @@
-import { Link, useHistory } from "react-router-dom";
+import { Link, useHistory, useLocation } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
 
 const Navbar = () => {
   const { currentUser, logout } = useAuth();
   const history = useHistory();
+  const location = useLocation();
 
   const handleLogout = async () => {
     try {
@@ -21,7 +22,7 @@ const Navbar = () => {
           Word Playground
         </Link>
         <ul className="nav">
-          {currentUser && (
+          {currentUser && location.pathname.split("/")[1] !== "gamepage" && (
             <Link to="/rooms" className="nav-item link">
               ルーム
             </Link>
@@ -41,10 +42,15 @@ const Navbar = () => {
               サインアップ
             </Link>
           )}
-          {currentUser && (
+          {currentUser && location.pathname.split("/")[1] !== "gamepage" && (
             <li className="nav-item" onClick={handleLogout}>
               ログアウト
             </li>
+          )}
+          {currentUser && location.pathname.split("/")[1] === "gamepage" && (
+            <Link to="/rooms" className="nav-item link">
+              退出
+            </Link>
           )}
         </ul>
       </div>
