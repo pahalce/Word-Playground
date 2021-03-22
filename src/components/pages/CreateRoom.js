@@ -1,4 +1,4 @@
-import React, { useRef, useState } from "react";
+import { useRef, useState } from "react";
 import Input from "../reusables/form/Input";
 import Submit from "../reusables/form/Submit";
 import { useAuth } from "../../contexts/AuthContext";
@@ -9,7 +9,7 @@ import { Link, useHistory } from "react-router-dom";
 const CreateRoom = () => {
   const roomNameRef = useRef("");
   const maxPlayersRef = useRef("");
-  const { username, currentUser } = useAuth();
+  const { username } = useAuth();
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const history = useHistory();

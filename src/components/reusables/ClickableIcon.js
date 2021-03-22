@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 
 const ClickableIcon = ({ before, after, size }) => {
   const [clicked, setClicked] = useState(false);
