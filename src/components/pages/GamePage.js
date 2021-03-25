@@ -7,13 +7,16 @@ import { MdInsertEmoticon, MdSettings } from "react-icons/md";
 import { useLocation } from "react-router";
 import { db } from "../../firebase/firebase";
 import { useAuth } from "../../contexts/AuthContext";
+import io from "socket.io-client";
 
 const GamePage = ({ letter, adj }) => {
   const location = useLocation();
   const roomId = location.pathname.split("/").pop();
   const { username } = useAuth();
   const [players, setPlayers] = useState();
+  const [socket, setSocket] = useState();
 
+  // watch playerlist
   useEffect(() => {
     db.rooms
       .doc(roomId)
@@ -77,6 +80,22 @@ const GamePage = ({ letter, adj }) => {
     };
   }, [roomId, username, location.pathname]);
 
+  // init socket server
+  useEffect(() => {
+    const newSocket = io("http://localhost:5000", { query: { id: roomId } });
+    setSocket(newSocket);
+
+    return () => newSocket.close();
+  }, [roomId]);
+
+  useEffect(() => {
+    if (socket == null) return;
+
+    socket.on("r", (msg) => console.log("received msg:", msg));
+
+    return () => socket.off("r");
+  }, [socket]);
+
   return (
     <div className="gamepage">
       <div className="gamepage-theme">
@@ -102,7 +121,11 @@ const GamePage = ({ letter, adj }) => {
       </div>
       <div className="gamepage-controller">
         <Input type="txt" placeholder="回答を記入してください" />
-        <Submit />
+        <Submit
+          onClick={() => {
+            socket.emit("add-player", username);
+          }}
+        />
         <BtnIcon icon={MdInsertEmoticon} size="2.25em" />
         <BtnIcon icon={MdSettings} size="2.25em" />
       </div>

@@ -32,16 +32,6 @@ const Navbar = () => {
               プロフィール
             </Link>
           )}
-          {!currentUser && (
-            <Link to="/login" className="nav-item link">
-              ログイン
-            </Link>
-          )}
-          {!currentUser && (
-            <Link to="/signup" className="nav-item link">
-              サインアップ
-            </Link>
-          )}
           {currentUser && location.pathname.split("/")[1] !== "gamepage" && (
             <li className="nav-item" onClick={handleLogout}>
               ログアウト
@@ -50,6 +40,16 @@ const Navbar = () => {
           {currentUser && location.pathname.split("/")[1] === "gamepage" && (
             <Link to="/rooms" className="nav-item link">
               退出
+            </Link>
+          )}
+          {!currentUser && (
+            <Link to="/login" className="nav-item link">
+              ログイン
+            </Link>
+          )}
+          {!currentUser && (
+            <Link to="/signup" className="nav-item link">
+              サインアップ
             </Link>
           )}
         </ul>
