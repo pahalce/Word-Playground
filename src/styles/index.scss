@@ -8,6 +8,12 @@ $black: #222831;
 $pure-black: #000000;
 $grey: #393e46;
 $primary: #00adb5;
+$danger1: #f4442e;
+$danger2: #d64933;
+$danger3: #d7331d;
+$danger4: #bc2c1a; //hov
+// $danger5: #d7331d;
+
 /* sizes */
 $size-smaller: 1rem;
 $size-small: 1.2rem;
@@ -176,9 +182,10 @@ form {
 }
 
 /* Button */
+// default btn
 .button {
   border: none;
-  padding: 0.2em 1.6em;
+  padding: 0.2em 1.2em;
   background-color: $black;
   color: $primary;
   font-size: $size-small;
@@ -188,6 +195,18 @@ form {
   &:disabled {
     background-color: $black;
     color: $grey;
+  }
+  // danger btn
+  &.btn-danger {
+    background-color: $danger1;
+    color: $white;
+    &:hover {
+      background-color: $danger3;
+    }
+    &:disabled {
+      background-color: $danger3;
+      color: $danger4;
+    }
   }
 }
 

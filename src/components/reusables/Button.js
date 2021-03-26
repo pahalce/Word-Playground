@@ -1,6 +1,6 @@
-const Button = ({ text, ...props }) => {
+const Button = ({ text, className, ...props }) => {
   return (
-    <button className="button shadow" {...props}>
+    <button className={className ? className + " button shadow" : "button shadow"} {...props}>
       {text}
     </button>
   );
