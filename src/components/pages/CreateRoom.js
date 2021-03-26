@@ -26,7 +26,7 @@ const CreateRoom = () => {
         roomName: roomNameRef.current.value,
         owner: currentUser.uid,
         maxPlayers: maxPlayersRef.current.value,
-        players: [username],
+        players: [{ id: currentUser.uid, username }],
         status: "WAITING",
         createdAt: db.getCurrentTimestamp(),
       });

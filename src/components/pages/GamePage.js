@@ -9,12 +9,21 @@ import { db } from "../../firebase/firebase";
 import { useAuth } from "../../contexts/AuthContext";
 import io from "socket.io-client";
 import { toast } from "react-toastify";
+import Button from "../reusables/Button";
+
+const STATE = {
+  BEFORE_GAME: "BEFORE_GAME",
+  ANSWER: "ANSWER",
+  VOTE: "VOTE",
+};
 
 const GamePage = ({ letter, adj }) => {
   const location = useLocation();
   const roomId = location.pathname.split("/").pop();
-  const { username } = useAuth();
+  const { username, currentUser } = useAuth();
   const [players, setPlayers] = useState();
+  const [isOwner, setIsOwner] = useState(false);
+  const [state, setState] = useState(STATE.BEFORE_GAME);
   const [socket, setSocket] = useState();
 
   // watch playerlist
@@ -24,9 +33,14 @@ const GamePage = ({ letter, adj }) => {
       .get()
       .then((doc) => {
         if (doc.exists) {
+          const owner = doc.data().owner;
+          if (owner === currentUser.uid) {
+            setIsOwner(true);
+          }
           const current_players = doc.data().players;
-          if (!current_players.includes(username)) {
-            const new_players = [...current_players, username];
+          const ids = current_players.map((player) => player.id);
+          if (!ids.includes(currentUser.uid)) {
+            const new_players = [...current_players, { id: currentUser.uid, username }];
             db.rooms
               .doc(roomId)
               .set({ players: new_players }, { merge: true })
@@ -51,11 +65,6 @@ const GamePage = ({ letter, adj }) => {
       }
     );
 
-    // for getting updates only while user is in the Rooms page
-    if (location.pathname !== "/gamepage/" + roomId) {
-      unsubscribe();
-    }
-
     return () => {
       unsubscribe();
       db.rooms
@@ -63,7 +72,7 @@ const GamePage = ({ letter, adj }) => {
         .get()
         .then((doc) => {
           if (doc.exists) {
-            const player_list = doc.data().players.filter((player) => player !== username);
+            const player_list = doc.data().players.filter((player) => player.id !== currentUser.uid);
             db.rooms
               .doc(roomId)
               .set({ players: player_list }, { merge: true })
@@ -75,7 +84,7 @@ const GamePage = ({ letter, adj }) => {
           }
         })
         .catch((error) => {
-          toast.error("Error getting document:", error);
+          toast.error("Error getting document:" + error.message);
         });
     };
   }, [roomId, username, location.pathname]);
@@ -91,26 +100,45 @@ const GamePage = ({ letter, adj }) => {
   useEffect(() => {
     if (socket == null) return;
 
-    socket.on("r", (msg) => toast.info("received msg:", msg));
+    socket.on("r", (msg) => toast.info("received msg:" + msg));
+    socket.on("change-state", (newState) => {
+      setState(newState);
+    });
 
     return () => socket.off("r");
   }, [socket]);
 
+  const handleGameStart = (e) => {
+    e.preventDefault();
+
+    socket.emit("change-state", STATE.ANSWER);
+    setState(STATE.ANSWER);
+  };
   return (
     <div className="gamepage">
-      <div className="gamepage-theme">
-        <span>{letter}</span>
-        からはじまる
-        <span>{adj}</span>
-        言葉
-      </div>
+      <h1 className="text-title">部屋:{location?.state?.room.roomName}</h1>
+      state:{state}
+      {state !== STATE.BEFORE_GAME && (
+        <div className="gamepage-theme">
+          <span>{letter}</span>
+          からはじまる
+          <span>{adj}</span>
+          言葉
+        </div>
+      )}
+      {state === STATE.BEFORE_GAME && isOwner && (
+        <div>
+          <Button text="ゲーム開始" onClick={handleGameStart} />
+          {players?.length}/{location?.state?.room.maxPlayers}
+        </div>
+      )}
       <div className="gamepage-board shadow">
         {players?.length > 0 &&
-          players.map((player, index) => {
+          players.map((player) => {
             return (
               <Card
-                key={index}
-                title={player}
+                key={player.id}
+                title={player.username}
                 content="待機中..."
                 width="24vw"
                 height="24vh"
@@ -124,6 +152,16 @@ const GamePage = ({ letter, adj }) => {
         <Submit
           onClick={() => {
             socket.emit("add-player", username);
+            console.log(players);
+            db.rooms
+              .doc(roomId)
+              .get()
+              .then((doc) => {
+                if (doc.exists) {
+                  const player_list = doc.data().players.filter((player) => player !== username);
+                  console.log(player_list);
+                }
+              });
           }}
         />
         <BtnIcon icon={MdInsertEmoticon} size="2.25em" />
