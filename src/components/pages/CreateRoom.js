@@ -6,6 +6,7 @@ import { db } from "../../firebase/firebase";
 import Alert from "../reusables/Alert";
 import { Link, useHistory } from "react-router-dom";
 import { useRoom } from "../../contexts/RoomContext";
+import { toast } from "react-toastify";
 
 const CreateRoom = () => {
   const roomNameRef = useRef("");
@@ -29,6 +30,7 @@ const CreateRoom = () => {
         status: "WAITING",
         createdAt: db.getCurrentTimestamp(),
       });
+      toast.success("ルームを作成しました");
       setLoading(false);
       history.push("/gamepage/" + docRef.id);
     } catch (err) {

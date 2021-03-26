@@ -1,4 +1,5 @@
 import React, { useContext, useState, useEffect } from "react";
+import { toast } from "react-toastify";
 import { auth, db } from "../firebase/firebase";
 
 const AuthContext = React.createContext();
@@ -72,7 +73,7 @@ export const AuthProvider = ({ children }) => {
           setLoading(false);
         })
         .catch((err) => {
-          console.log(err);
+          toast.error(err);
         })
         .finally(() => {
           setLoading(false);

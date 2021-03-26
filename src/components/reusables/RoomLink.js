@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useHistory } from "react-router";
+import { toast } from "react-toastify";
 import { useRoom } from "../../contexts/RoomContext";
 import Button from "./Button";
 
@@ -17,11 +18,11 @@ const RoomLink = ({ room, roomId, isOwner }) => {
     deleteRoom(roomId)
       .then(() => {
         // 消えるためsetLoading(false)はいらない
-        console.log("deleted room:", roomId);
+        toast.success("ルームを削除しました");
       })
       .catch((err) => {
         // 再レンダーされるためsetLoading(false)はいらない
-        console.log(err.message);
+        toast.error(err.message);
       });
   };
 

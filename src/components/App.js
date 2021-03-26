@@ -13,6 +13,9 @@ import CreateRoom from "./pages/CreateRoom";
 import Rooms from "./pages/Rooms";
 import { RoomProvider } from "../contexts/RoomContext";
 
+import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+
 function App() {
   return (
     <div className="App">
@@ -36,6 +39,7 @@ function App() {
           </AuthProvider>
         </Switch>
       </Router>
+      <ToastContainer position="bottom-right" autoClose={5000} newestOnTop />
     </div>
   );
 }

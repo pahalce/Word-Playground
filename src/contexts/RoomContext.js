@@ -1,5 +1,6 @@
 import React, { useContext, useState, useEffect } from "react";
 import { useLocation } from "react-router";
+import { toast } from "react-toastify";
 import { db } from "../firebase/firebase";
 
 const RoomContext = React.createContext();
@@ -31,7 +32,7 @@ export const RoomProvider = ({ children }) => {
           setRooms(roomsArr);
         },
         (err) => {
-          console.log(err);
+          toast.error(err);
         }
       );
     }

@@ -8,6 +8,7 @@ import { useLocation } from "react-router";
 import { db } from "../../firebase/firebase";
 import { useAuth } from "../../contexts/AuthContext";
 import io from "socket.io-client";
+import { toast } from "react-toastify";
 
 const GamePage = ({ letter, adj }) => {
   const location = useLocation();
@@ -30,15 +31,15 @@ const GamePage = ({ letter, adj }) => {
               .doc(roomId)
               .set({ players: new_players }, { merge: true })
               .catch((err) => {
-                console.log(err);
+                toast.error(err);
               });
           }
         } else {
-          console.log("No such document!");
+          toast.error("No such document!");
         }
       })
       .catch((error) => {
-        console.log("Error getting document:", error);
+        toast.error("Error getting document:", error);
       });
 
     const unsubscribe = db.rooms.doc(roomId).onSnapshot(
@@ -46,13 +47,12 @@ const GamePage = ({ letter, adj }) => {
         setPlayers(snapshot.data().players);
       },
       (err) => {
-        console.log(err);
+        toast.error(err);
       }
     );
 
     // for getting updates only while user is in the Rooms page
     if (location.pathname !== "/gamepage/" + roomId) {
-      console.log("page diff");
       unsubscribe();
     }
 
@@ -68,14 +68,14 @@ const GamePage = ({ letter, adj }) => {
               .doc(roomId)
               .set({ players: player_list }, { merge: true })
               .catch((err) => {
-                console.log(err);
+                toast.error(err);
               });
           } else {
-            console.log("No such document!");
+            toast.error("No such document!");
           }
         })
         .catch((error) => {
-          console.log("Error getting document:", error);
+          toast.error("Error getting document:", error);
         });
     };
   }, [roomId, username, location.pathname]);
@@ -91,7 +91,7 @@ const GamePage = ({ letter, adj }) => {
   useEffect(() => {
     if (socket == null) return;
 
-    socket.on("r", (msg) => console.log("received msg:", msg));
+    socket.on("r", (msg) => toast.info("received msg:", msg));
 
     return () => socket.off("r");
   }, [socket]);
