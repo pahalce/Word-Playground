@@ -11,6 +11,13 @@ export const RoomProvider = ({ children }) => {
   const [rooms, setRooms] = useState([]);
   const location = useLocation();
 
+  const addRoom = (room) => {
+    return db.rooms.add(room);
+  };
+  const deleteRoom = (roomId) => {
+    return db.rooms.doc(roomId).delete();
+  };
+
   useEffect(() => {
     // for getting updates only while user is in the Rooms page
     let unsubscribe;
@@ -33,6 +40,8 @@ export const RoomProvider = ({ children }) => {
 
   const value = {
     rooms,
+    addRoom,
+    deleteRoom,
   };
   return <RoomContext.Provider value={value}>{children}</RoomContext.Provider>;
 };

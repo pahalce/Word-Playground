@@ -1,11 +1,20 @@
 import React from "react";
 import { Link } from "react-router-dom";
+import { useAuth } from "../../contexts/AuthContext";
 import { useRoom } from "../../contexts/RoomContext";
 import RoomLink from "../reusables/RoomLink";
 
 const Rooms = () => {
   const { rooms } = useRoom();
-  const roomItems = rooms.map((room) => <RoomLink key={room.id} room={room} />);
+  const { currentUser } = useAuth();
+  const roomItems = rooms.map((room) => (
+    <RoomLink
+      key={room.id}
+      room={room}
+      roomId={room.id}
+      isOwner={room.owner === currentUser.uid ? true : false}
+    />
+  ));
   return (
     <div className="rooms">
       <h1 className="text-title">ルーム一覧</h1>

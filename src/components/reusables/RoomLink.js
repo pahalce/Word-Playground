@@ -1,24 +1,36 @@
 import { useState } from "react";
 import { useHistory } from "react-router";
+import { useRoom } from "../../contexts/RoomContext";
 import Button from "./Button";
 
-const RoomLink = ({ room }) => {
-  const [disabled, setDisabled] = useState(false);
+const RoomLink = ({ room, roomId, isOwner }) => {
+  const [loading, setLoading] = useState(false);
+  const { deleteRoom } = useRoom();
   const history = useHistory();
   const handleEnter = (e) => {
     e.preventDefault();
     history.push("/gamepage/" + room.id);
   };
-  const handleErase = (e) => {
+  const handleDelete = (e) => {
     e.preventDefault();
-    setDisabled(true);
+    setLoading(true);
+    deleteRoom(roomId)
+      .then(() => {
+        // 消えるためsetLoading(false)はいらない
+        console.log("deleted room:", roomId);
+      })
+      .catch((err) => {
+        // 再レンダーされるためsetLoading(false)はいらない
+        console.log(err.message);
+      });
   };
+
   return (
     <div className="room-link shadow">
       <div className="room-link-name">{room.roomName}</div>
       <div className="room-link-buttons">
         <Button text="入室" onClick={handleEnter} />
-        <Button disabled={disabled} text="削除" className="btn-danger" onClick={handleErase} />
+        {isOwner && <Button disabled={loading} text="削除" className="btn-danger" onClick={handleDelete} />}
       </div>
     </div>
   );

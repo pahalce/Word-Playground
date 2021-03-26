@@ -5,11 +5,13 @@ import { useAuth } from "../../contexts/AuthContext";
 import { db } from "../../firebase/firebase";
 import Alert from "../reusables/Alert";
 import { Link, useHistory } from "react-router-dom";
+import { useRoom } from "../../contexts/RoomContext";
 
 const CreateRoom = () => {
   const roomNameRef = useRef("");
   const maxPlayersRef = useRef("");
-  const { username } = useAuth();
+  const { username, currentUser } = useAuth();
+  const { addRoom } = useRoom();
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const history = useHistory();
@@ -19,9 +21,9 @@ const CreateRoom = () => {
     try {
       setError("");
       setLoading(true);
-      const docRef = await db.rooms.add({
+      const docRef = await addRoom({
         roomName: roomNameRef.current.value,
-        owner: username,
+        owner: currentUser.uid,
         maxPlayers: maxPlayersRef.current.value,
         players: [username],
         status: "WAITING",
