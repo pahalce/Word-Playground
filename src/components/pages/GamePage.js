@@ -143,6 +143,7 @@ const GamePage = ({ letter, adj }) => {
                 width="24vw"
                 height="24vh"
                 fontSize="1.4em"
+                isOwner={location?.state?.room.owner === player.id}
               />
             );
           })}
@@ -152,16 +153,6 @@ const GamePage = ({ letter, adj }) => {
         <Submit
           onClick={() => {
             socket.emit("add-player", username);
-            console.log(players);
-            db.rooms
-              .doc(roomId)
-              .get()
-              .then((doc) => {
-                if (doc.exists) {
-                  const player_list = doc.data().players.filter((player) => player !== username);
-                  console.log(player_list);
-                }
-              });
           }}
         />
         <BtnIcon icon={MdInsertEmoticon} size="2.25em" />
