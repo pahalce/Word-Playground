@@ -7,6 +7,7 @@ import Alert from "../reusables/Alert";
 import { Link, useHistory } from "react-router-dom";
 import { useRoom } from "../../contexts/RoomContext";
 import { toast } from "react-toastify";
+import { STATE } from "../../misc/gameState";
 
 const CreateRoom = () => {
   const roomNameRef = useRef("");
@@ -27,7 +28,7 @@ const CreateRoom = () => {
         owner: currentUser.uid,
         maxPlayers: maxPlayersRef.current.value,
         players: [{ id: currentUser.uid, username }],
-        status: "WAITING",
+        state: STATE.BEFORE_GAME,
         createdAt: db.getCurrentTimestamp(),
       });
       toast.success("ルームを作成しました");

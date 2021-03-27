@@ -4,26 +4,21 @@ import Input from "../reusables/form/Input";
 import Submit from "../reusables/form/Submit";
 import BtnIcon from "../reusables/BtnIcon";
 import { MdInsertEmoticon, MdSettings } from "react-icons/md";
-import { useLocation } from "react-router";
+import { useHistory, useLocation } from "react-router";
 import { db } from "../../firebase/firebase";
 import { useAuth } from "../../contexts/AuthContext";
 import io from "socket.io-client";
 import { toast } from "react-toastify";
 import Button from "../reusables/Button";
-
-const STATE = {
-  BEFORE_GAME: "BEFORE_GAME",
-  ANSWER: "ANSWER",
-  VOTE: "VOTE",
-};
+import { STATE } from "../../misc/gameState";
 
 const GamePage = ({ letter, adj }) => {
+  const history = useHistory();
   const location = useLocation();
   const roomId = location.pathname.split("/").pop();
   const { username, currentUser } = useAuth();
-  const [players, setPlayers] = useState();
+  const [room, setRoom] = useState();
   const [isOwner, setIsOwner] = useState(false);
-  const [state, setState] = useState(STATE.BEFORE_GAME);
   const [socket, setSocket] = useState();
 
   // watch playerlist
@@ -33,6 +28,12 @@ const GamePage = ({ letter, adj }) => {
       .get()
       .then((doc) => {
         if (doc.exists) {
+          if (doc.data().state !== STATE.BEFORE_GAME) {
+            toast.error("This room is closed.");
+            history.push("/rooms");
+            return;
+          }
+          setRoom(db.formatDoc(doc));
           const owner = doc.data().owner;
           if (owner === currentUser.uid) {
             setIsOwner(true);
@@ -55,10 +56,9 @@ const GamePage = ({ letter, adj }) => {
       .catch((error) => {
         toast.error("Error getting document:", error);
       });
-
     const unsubscribe = db.rooms.doc(roomId).onSnapshot(
       (snapshot) => {
-        setPlayers(snapshot.data().players);
+        setRoom(db.formatDoc(snapshot));
       },
       (err) => {
         toast.error(err);
@@ -97,12 +97,13 @@ const GamePage = ({ letter, adj }) => {
     return () => newSocket.close();
   }, [roomId]);
 
+  // socket events
   useEffect(() => {
     if (socket == null) return;
 
     socket.on("r", (msg) => toast.info("received msg:" + msg));
     socket.on("change-state", (newState) => {
-      setState(newState);
+      // setState(newState);
     });
 
     return () => socket.off("r");
@@ -111,54 +112,66 @@ const GamePage = ({ letter, adj }) => {
   const handleGameStart = (e) => {
     e.preventDefault();
 
-    socket.emit("change-state", STATE.ANSWER);
-    setState(STATE.ANSWER);
+    db.rooms
+      .doc(roomId)
+      .set({ state: STATE.ANSWER }, { merge: true })
+      .then(() => {
+        socket.emit("change-state", STATE.ANSWER);
+        // setState(STATE.ANSWER);
+      })
+      .catch((err) => {
+        toast.err(err.message);
+      });
   };
   return (
-    <div className="gamepage">
-      <h1 className="text-title">部屋:{location?.state?.room.roomName}</h1>
-      state:{state}
-      {state !== STATE.BEFORE_GAME && (
-        <div className="gamepage-theme">
-          <span>{letter}</span>
-          からはじまる
-          <span>{adj}</span>
-          言葉
+    <>
+      {room && (
+        <div className="gamepage">
+          <h1 className="text-title">部屋:{room.roomName}</h1>
+          state:{room.state}
+          {room.state !== STATE.BEFORE_GAME && (
+            <div className="gamepage-theme">
+              <span>{letter}</span>
+              からはじまる
+              <span>{adj}</span>
+              言葉
+            </div>
+          )}
+          {room.state === STATE.BEFORE_GAME && isOwner && (
+            <div>
+              <Button text="ゲーム開始" onClick={handleGameStart} />
+              {room.players?.length}/{room.maxPlayers}
+            </div>
+          )}
+          <div className="gamepage-board shadow">
+            {room.players?.length > 0 &&
+              room.players.map((player) => {
+                return (
+                  <Card
+                    key={player.id}
+                    title={player.username}
+                    content="待機中..."
+                    width="24vw"
+                    height="24vh"
+                    fontSize="1.4em"
+                    isOwner={room.owner === player.id}
+                  />
+                );
+              })}
+          </div>
+          <div className="gamepage-controller">
+            <Input type="txt" placeholder="回答を記入してください" />
+            <Submit
+              onClick={() => {
+                socket.emit("add-player", username);
+              }}
+            />
+            <BtnIcon icon={MdInsertEmoticon} size="2.25em" />
+            <BtnIcon icon={MdSettings} size="2.25em" />
+          </div>
         </div>
       )}
-      {state === STATE.BEFORE_GAME && isOwner && (
-        <div>
-          <Button text="ゲーム開始" onClick={handleGameStart} />
-          {players?.length}/{location?.state?.room.maxPlayers}
-        </div>
-      )}
-      <div className="gamepage-board shadow">
-        {players?.length > 0 &&
-          players.map((player) => {
-            return (
-              <Card
-                key={player.id}
-                title={player.username}
-                content="待機中..."
-                width="24vw"
-                height="24vh"
-                fontSize="1.4em"
-                isOwner={location?.state?.room.owner === player.id}
-              />
-            );
-          })}
-      </div>
-      <div className="gamepage-controller">
-        <Input type="txt" placeholder="回答を記入してください" />
-        <Submit
-          onClick={() => {
-            socket.emit("add-player", username);
-          }}
-        />
-        <BtnIcon icon={MdInsertEmoticon} size="2.25em" />
-        <BtnIcon icon={MdSettings} size="2.25em" />
-      </div>
-    </div>
+    </>
   );
 };
 

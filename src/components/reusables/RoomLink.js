@@ -10,10 +10,7 @@ const RoomLink = ({ room, roomId, isOwner }) => {
   const history = useHistory();
   const handleEnter = (e) => {
     e.preventDefault();
-    history.push({
-      pathname: "/gamepage/" + room.id,
-      state: { room: room },
-    });
+    history.push("/gamepage/" + room.id);
   };
   const handleDelete = (e) => {
     e.preventDefault();
