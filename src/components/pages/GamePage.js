@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Card from "../reusables/Card";
 import Input from "../reusables/form/Input";
 import Submit from "../reusables/form/Submit";
@@ -21,7 +21,10 @@ const GamePage = ({ letter, adj }) => {
   const [isOwner, setIsOwner] = useState(false);
   const [socket, setSocket] = useState();
   const [state, setState] = useState(STATE.BEFORE_GAME);
-  const [players, setPlayers] = useState([]);
+  const [players, setPlayers] = useState([]); // [{id,username},...]
+  const [answers, setAnswers] = useState({});
+  const [boardMsg, setBoardMsg] = useState({});
+  const answerRef = useRef("");
 
   // watch playerlist
   useEffect(() => {
@@ -57,15 +60,49 @@ const GamePage = ({ letter, adj }) => {
     );
 
     return unsubscribe;
-  }, [roomId, username, location.pathname]);
+  }, [roomId, username, location.pathname, currentUser.uid, history]);
+
+  useEffect(() => {
+    const boardList = {};
+    players.forEach((player) => {
+      boardList[player.id] = "";
+    });
+    switch (state) {
+      case STATE.BEFORE_GAME:
+        Object.keys(boardList).forEach((key) => {
+          boardList[key] = "待機中...";
+        });
+        break;
+
+      case STATE.ANSWER:
+        players.forEach((player) => {
+          if (answers[player.id]) {
+            boardList[player.id] = answers[player.id];
+          } else {
+            boardList[player.id] = "回答中...";
+          }
+        });
+        break;
+
+      default:
+        toast("indef");
+        Object.keys(boardList).forEach((key) => {
+          boardList[key] = "待機中...";
+        });
+        break;
+    }
+    setBoardMsg(boardList);
+  }, [state, players, answers]);
 
   // init socket server
   useEffect(() => {
-    const newSocket = io("http://localhost:5000", { query: { id: roomId, username } });
+    const newSocket = io("http://localhost:5000", {
+      query: { id: roomId, userId: currentUser.uid, username },
+    });
     setSocket(newSocket);
 
     return () => newSocket.close();
-  }, [roomId]);
+  }, [roomId, currentUser.uid, username]);
 
   // socket events
   useEffect(() => {
@@ -78,13 +115,18 @@ const GamePage = ({ letter, adj }) => {
     socket.on(SOCKET_TYPE.PLAYERS_CHANGED, (newPlayers) => {
       setPlayers(newPlayers);
     });
+    socket.on(SOCKET_TYPE.SEND_ANSWER, ({ userId, answer }) => {
+      const answers_list = Object.assign({}, answers);
+      answers_list[userId] = answer;
+      setAnswers(answers_list);
+    });
 
     return () => {
       Object.keys(SOCKET_TYPE).forEach((type) => {
         socket.off(type);
       });
     };
-  }, [socket]);
+  }, [socket, answers]);
 
   const handleGameStart = (e) => {
     e.preventDefault();
@@ -100,12 +142,24 @@ const GamePage = ({ letter, adj }) => {
         toast.err(err.message);
       });
   };
+  const handleSendAnswer = (e) => {
+    e.preventDefault();
+    const answer_list = Object.assign({}, answers);
+    if (answer_list[currentUser.uid] === answerRef.current.value) {
+      answerRef.current.value = "";
+      return;
+    }
+    answer_list[currentUser.uid] = answerRef.current.value;
+    setAnswers(answer_list);
+    socket.emit(SOCKET_TYPE.SEND_ANSWER, { userId: currentUser.uid, answer: answerRef.current.value });
+    answerRef.current.value = "";
+  };
   return (
     <>
       {room && (
         <div className="gamepage">
           <h1 className="text-title">部屋:{room.roomName}</h1>
-          state:{state.toString()}
+          <p>state:{state.toString()}</p>
           {state !== STATE.BEFORE_GAME && (
             <div className="gamepage-theme">
               <span>{letter}</span>
@@ -114,12 +168,8 @@ const GamePage = ({ letter, adj }) => {
               言葉
             </div>
           )}
-          {state === STATE.BEFORE_GAME && isOwner && (
-            <div>
-              <Button text="ゲーム開始" onClick={handleGameStart} />
-              {players.length}/{room.maxPlayers}
-            </div>
-          )}
+          {state === STATE.BEFORE_GAME && isOwner && <Button text="ゲーム開始" onClick={handleGameStart} />}
+          {players.length}/{room.maxPlayers}
           <div className="gamepage-board shadow">
             {players.length > 0 &&
               players.map((player) => {
@@ -127,7 +177,7 @@ const GamePage = ({ letter, adj }) => {
                   <Card
                     key={player.id}
                     title={player.username}
-                    content="待機中..."
+                    content={boardMsg[player.id]}
                     width="24vw"
                     height="24vh"
                     fontSize="1.4em"
@@ -137,12 +187,10 @@ const GamePage = ({ letter, adj }) => {
               })}
           </div>
           <div className="gamepage-controller">
-            <Input type="txt" placeholder="回答を記入してください" />
-            <Submit
-              onClick={() => {
-                socket.emit(SOCKET_TYPE.SEND_MESSAGE, username);
-              }}
-            />
+            <form onSubmit={handleSendAnswer}>
+              <Input type="txt" placeholder="回答を記入してください" inputRef={answerRef} />
+              <Submit disabled={state !== STATE.ANSWER} />
+            </form>
             <BtnIcon icon={MdInsertEmoticon} size="2.25em" />
             <BtnIcon icon={MdSettings} size="2.25em" />
           </div>

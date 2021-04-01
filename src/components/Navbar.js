@@ -27,7 +27,7 @@ const Navbar = () => {
               ルーム
             </Link>
           )}
-          {currentUser && (
+          {currentUser && location.pathname.split("/")[1] !== "gamepage" && (
             <Link to="/profile" className="nav-item link">
               プロフィール
             </Link>
