@@ -20,6 +20,7 @@ const GamePage = ({ letter, adj }) => {
   const [room, setRoom] = useState();
   const [isOwner, setIsOwner] = useState(false);
   const [socket, setSocket] = useState();
+  const [state, setState] = useState(STATE.BEFORE_GAME);
 
   // watch playerlist
   useEffect(() => {
@@ -103,7 +104,7 @@ const GamePage = ({ letter, adj }) => {
 
     socket.on("r", (msg) => toast.info("received msg:" + msg));
     socket.on("change-state", (newState) => {
-      // setState(newState);
+      setState(newState);
     });
     socket.on("user-left", (user) => {
       toast.info("user left:" + user);
@@ -120,7 +121,7 @@ const GamePage = ({ letter, adj }) => {
       .set({ isGameStarted: true }, { merge: true })
       .then(() => {
         socket.emit("change-state", STATE.ANSWER);
-        // setState(STATE.ANSWER);
+        setState(STATE.ANSWER);
       })
       .catch((err) => {
         toast.err(err.message);
@@ -131,8 +132,8 @@ const GamePage = ({ letter, adj }) => {
       {room && (
         <div className="gamepage">
           <h1 className="text-title">部屋:{room.roomName}</h1>
-          isGameStarted:{room.isGameStarted.toString()}
-          {room.isGameStarted === true && (
+          state:{state.toString()}
+          {room.isGameStarted !== STATE.BEFORE_GAME && (
             <div className="gamepage-theme">
               <span>{letter}</span>
               からはじまる
@@ -140,7 +141,7 @@ const GamePage = ({ letter, adj }) => {
               言葉
             </div>
           )}
-          {room.isGameStarted === false && isOwner && (
+          {state === STATE.BEFORE_GAME && isOwner && (
             <div>
               <Button text="ゲーム開始" onClick={handleGameStart} />
               {room.players?.length}/{room.maxPlayers}
