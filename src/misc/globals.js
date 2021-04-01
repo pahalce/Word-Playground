@@ -1,8 +1,11 @@
 export const STATE = {
   BEFORE_GAME: "BEFORE_GAME",
   ANSWER: "ANSWER",
+  SHOW_ANSWER: "SHOW_ANSWER",
   VOTE: "VOTE",
 };
+
+// you need to change server.js as well
 export const SOCKET_TYPE = {
   CHANGE_STATE: "CHANGE_STATE",
   PLAYERS_CHANGED: "PLAYERS_CHANGED",

@@ -77,10 +77,19 @@ const GamePage = ({ letter, adj }) => {
       case STATE.ANSWER:
         players.forEach((player) => {
           if (answers[player.id]) {
-            boardList[player.id] = answers[player.id];
+            boardList[player.id] = "回答済み";
+            if (player.id === currentUser.uid) {
+              boardList[player.id] += `(${answers[player.id]})`;
+            }
           } else {
             boardList[player.id] = "回答中...";
           }
+        });
+        break;
+
+      case STATE.SHOW_ANSWER:
+        players.forEach((player) => {
+          boardList[player.id] = answers[player.id];
         });
         break;
 
@@ -128,7 +137,7 @@ const GamePage = ({ letter, adj }) => {
     };
   }, [socket, answers]);
 
-  const handleGameStart = (e) => {
+  const gameStart = (e) => {
     e.preventDefault();
 
     db.rooms
@@ -142,7 +151,7 @@ const GamePage = ({ letter, adj }) => {
         toast.err(err.message);
       });
   };
-  const handleSendAnswer = (e) => {
+  const sendAnswer = (e) => {
     e.preventDefault();
     const answer_list = Object.assign({}, answers);
     if (answer_list[currentUser.uid] === answerRef.current.value) {
@@ -154,6 +163,12 @@ const GamePage = ({ letter, adj }) => {
     socket.emit(SOCKET_TYPE.SEND_ANSWER, { userId: currentUser.uid, answer: answerRef.current.value });
     answerRef.current.value = "";
   };
+  const showAnswer = (e) => {
+    e.preventDefault();
+    socket.emit(SOCKET_TYPE.CHANGE_STATE, STATE.SHOW_ANSWER);
+    setState(STATE.SHOW_ANSWER);
+  };
+
   return (
     <>
       {room && (
@@ -168,7 +183,10 @@ const GamePage = ({ letter, adj }) => {
               言葉
             </div>
           )}
-          {state === STATE.BEFORE_GAME && isOwner && <Button text="ゲーム開始" onClick={handleGameStart} />}
+          {state === STATE.BEFORE_GAME && isOwner && <Button text="ゲーム開始" onClick={gameStart} />}
+          {state === STATE.ANSWER && isOwner && Object.keys(answers).length === players.length && (
+            <Button text="回答開示" onClick={showAnswer} />
+          )}
           {players.length}/{room.maxPlayers}
           <div className="gamepage-board shadow">
             {players.length > 0 &&
@@ -187,7 +205,7 @@ const GamePage = ({ letter, adj }) => {
               })}
           </div>
           <div className="gamepage-controller">
-            <form onSubmit={handleSendAnswer}>
+            <form onSubmit={sendAnswer}>
               <Input type="txt" placeholder="回答を記入してください" inputRef={answerRef} />
               <Submit disabled={state !== STATE.ANSWER} />
             </form>

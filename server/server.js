@@ -1,3 +1,4 @@
+// you need to change globals.js as well
 const SOCKET_TYPE = {
   CHANGE_STATE: "CHANGE_STATE",
   PLAYERS_CHANGED: "PLAYERS_CHANGED",
