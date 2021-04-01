@@ -7,12 +7,11 @@ import Alert from "../reusables/Alert";
 import { Link, useHistory } from "react-router-dom";
 import { useRoom } from "../../contexts/RoomContext";
 import { toast } from "react-toastify";
-import { STATE } from "../../misc/gameState";
 
 const CreateRoom = () => {
   const roomNameRef = useRef("");
   const maxPlayersRef = useRef("");
-  const { username, currentUser } = useAuth();
+  const { currentUser } = useAuth();
   const { addRoom } = useRoom();
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
@@ -27,7 +26,6 @@ const CreateRoom = () => {
         roomName: roomNameRef.current.value,
         owner: currentUser.uid,
         maxPlayers: maxPlayersRef.current.value,
-        players: [{ id: currentUser.uid, username }],
         isGameStarted: false,
         createdAt: db.getCurrentTimestamp(),
       });

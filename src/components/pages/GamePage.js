@@ -10,7 +10,7 @@ import { useAuth } from "../../contexts/AuthContext";
 import io from "socket.io-client";
 import { toast } from "react-toastify";
 import Button from "../reusables/Button";
-import { STATE } from "../../misc/gameState";
+import { STATE, SOCKET_TYPE } from "../../misc/globals";
 
 const GamePage = ({ letter, adj }) => {
   const history = useHistory();
@@ -21,6 +21,7 @@ const GamePage = ({ letter, adj }) => {
   const [isOwner, setIsOwner] = useState(false);
   const [socket, setSocket] = useState();
   const [state, setState] = useState(STATE.BEFORE_GAME);
+  const [players, setPlayers] = useState([]);
 
   // watch playerlist
   useEffect(() => {
@@ -39,17 +40,6 @@ const GamePage = ({ letter, adj }) => {
           if (owner === currentUser.uid) {
             setIsOwner(true);
           }
-          const current_players = doc.data().players;
-          const ids = current_players.map((player) => player.id);
-          if (!ids.includes(currentUser.uid)) {
-            const new_players = [...current_players, { id: currentUser.uid, username }];
-            db.rooms
-              .doc(roomId)
-              .set({ players: new_players }, { merge: true })
-              .catch((err) => {
-                toast.error(err);
-              });
-          }
         } else {
           toast.error("No such document!");
         }
@@ -66,33 +56,12 @@ const GamePage = ({ letter, adj }) => {
       }
     );
 
-    return () => {
-      unsubscribe();
-      db.rooms
-        .doc(roomId)
-        .get()
-        .then((doc) => {
-          if (doc.exists) {
-            const player_list = doc.data().players.filter((player) => player.id !== currentUser.uid);
-            db.rooms
-              .doc(roomId)
-              .set({ players: player_list }, { merge: true })
-              .catch((err) => {
-                toast.error(err);
-              });
-          } else {
-            toast.error("No such document!");
-          }
-        })
-        .catch((error) => {
-          toast.error("Error getting document:" + error.message);
-        });
-    };
+    return unsubscribe;
   }, [roomId, username, location.pathname]);
 
   // init socket server
   useEffect(() => {
-    const newSocket = io("http://localhost:5000", { query: { id: roomId } });
+    const newSocket = io("http://localhost:5000", { query: { id: roomId, username } });
     setSocket(newSocket);
 
     return () => newSocket.close();
@@ -102,15 +71,19 @@ const GamePage = ({ letter, adj }) => {
   useEffect(() => {
     if (socket == null) return;
 
-    socket.on("r", (msg) => toast.info("received msg:" + msg));
-    socket.on("change-state", (newState) => {
+    socket.on(SOCKET_TYPE.SEND_MESSAGE, (msg) => toast.info(msg));
+    socket.on(SOCKET_TYPE.CHANGE_STATE, (newState) => {
       setState(newState);
     });
-    socket.on("user-left", (user) => {
-      toast.info("user left:" + user);
+    socket.on(SOCKET_TYPE.PLAYERS_CHANGED, (newPlayers) => {
+      setPlayers(newPlayers);
     });
 
-    return () => socket.off("r");
+    return () => {
+      Object.keys(SOCKET_TYPE).forEach((type) => {
+        socket.off(type);
+      });
+    };
   }, [socket]);
 
   const handleGameStart = (e) => {
@@ -120,7 +93,7 @@ const GamePage = ({ letter, adj }) => {
       .doc(roomId)
       .set({ isGameStarted: true }, { merge: true })
       .then(() => {
-        socket.emit("change-state", STATE.ANSWER);
+        socket.emit(SOCKET_TYPE.CHANGE_STATE, STATE.ANSWER);
         setState(STATE.ANSWER);
       })
       .catch((err) => {
@@ -133,7 +106,7 @@ const GamePage = ({ letter, adj }) => {
         <div className="gamepage">
           <h1 className="text-title">部屋:{room.roomName}</h1>
           state:{state.toString()}
-          {room.isGameStarted !== STATE.BEFORE_GAME && (
+          {state !== STATE.BEFORE_GAME && (
             <div className="gamepage-theme">
               <span>{letter}</span>
               からはじまる
@@ -144,12 +117,12 @@ const GamePage = ({ letter, adj }) => {
           {state === STATE.BEFORE_GAME && isOwner && (
             <div>
               <Button text="ゲーム開始" onClick={handleGameStart} />
-              {room.players?.length}/{room.maxPlayers}
+              {players.length}/{room.maxPlayers}
             </div>
           )}
           <div className="gamepage-board shadow">
-            {room.players?.length > 0 &&
-              room.players.map((player) => {
+            {players.length > 0 &&
+              players.map((player) => {
                 return (
                   <Card
                     key={player.id}
@@ -167,7 +140,7 @@ const GamePage = ({ letter, adj }) => {
             <Input type="txt" placeholder="回答を記入してください" />
             <Submit
               onClick={() => {
-                socket.emit("add-player", username);
+                socket.emit(SOCKET_TYPE.SEND_MESSAGE, username);
               }}
             />
             <BtnIcon icon={MdInsertEmoticon} size="2.25em" />
