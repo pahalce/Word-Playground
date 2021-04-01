@@ -28,7 +28,7 @@ const CreateRoom = () => {
         owner: currentUser.uid,
         maxPlayers: maxPlayersRef.current.value,
         players: [{ id: currentUser.uid, username }],
-        state: STATE.BEFORE_GAME,
+        isGameStarted: false,
         createdAt: db.getCurrentTimestamp(),
       });
       toast.success("ルームを作成しました");
@@ -68,7 +68,7 @@ const CreateRoom = () => {
         <Submit disabled={loading} />
       </form>
       <div className="form-bottom-text">
-        <Link to="/create-room" className="link link-text">
+        <Link to="/rooms" className="link link-text">
           ルーム一覧へ
         </Link>
       </div>

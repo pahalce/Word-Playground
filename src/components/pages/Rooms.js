@@ -13,6 +13,7 @@ const Rooms = () => {
       room={room}
       roomId={room.id}
       isOwner={room.owner === currentUser.uid ? true : false}
+      isGameStarted={room.isGameStarted}
     />
   ));
   return (

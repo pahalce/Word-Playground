@@ -28,7 +28,7 @@ const GamePage = ({ letter, adj }) => {
       .get()
       .then((doc) => {
         if (doc.exists) {
-          if (doc.data().state !== STATE.BEFORE_GAME) {
+          if (doc.data().isGameStarted === true) {
             toast.error("This room is closed.");
             history.push("/rooms");
             return;
@@ -105,6 +105,9 @@ const GamePage = ({ letter, adj }) => {
     socket.on("change-state", (newState) => {
       // setState(newState);
     });
+    socket.on("user-left", (user) => {
+      toast.info("user left:" + user);
+    });
 
     return () => socket.off("r");
   }, [socket]);
@@ -114,7 +117,7 @@ const GamePage = ({ letter, adj }) => {
 
     db.rooms
       .doc(roomId)
-      .set({ state: STATE.ANSWER }, { merge: true })
+      .set({ isGameStarted: true }, { merge: true })
       .then(() => {
         socket.emit("change-state", STATE.ANSWER);
         // setState(STATE.ANSWER);
@@ -128,8 +131,8 @@ const GamePage = ({ letter, adj }) => {
       {room && (
         <div className="gamepage">
           <h1 className="text-title">部屋:{room.roomName}</h1>
-          state:{room.state}
-          {room.state !== STATE.BEFORE_GAME && (
+          isGameStarted:{room.isGameStarted.toString()}
+          {room.isGameStarted === true && (
             <div className="gamepage-theme">
               <span>{letter}</span>
               からはじまる
@@ -137,7 +140,7 @@ const GamePage = ({ letter, adj }) => {
               言葉
             </div>
           )}
-          {room.state === STATE.BEFORE_GAME && isOwner && (
+          {room.isGameStarted === false && isOwner && (
             <div>
               <Button text="ゲーム開始" onClick={handleGameStart} />
               {room.players?.length}/{room.maxPlayers}
