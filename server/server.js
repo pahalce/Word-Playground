@@ -1,7 +1,10 @@
+const themes = require("./theme");
+
 // you need to change globals.js as well
 const SOCKET_TYPE = {
-  CHANGE_STATE: "CHANGE_STATE",
   PLAYERS_CHANGED: "PLAYERS_CHANGED",
+  CHANGE_STATE: "CHANGE_STATE",
+  GET_THEME: "GET_THEME",
   SEND_MESSAGE: "SEND_MESSAGE",
   SEND_ANSWER: "SEND_ANSWER",
 };
@@ -38,6 +41,12 @@ io.on("connection", (socket) => {
 
   socket.on(SOCKET_TYPE.CHANGE_STATE, (state) => {
     socket.to(id).emit(SOCKET_TYPE.CHANGE_STATE, state);
+  });
+  socket.on(SOCKET_TYPE.GET_THEME, () => {
+    io.to(id).emit(SOCKET_TYPE.GET_THEME, {
+      startingLetter: themes.getRandomLetter(),
+      themeList: themes.getRandomTheme(),
+    });
   });
   socket.on(SOCKET_TYPE.SEND_MESSAGE, (msg) => {
     socket.to(id).emit(SOCKET_TYPE.SEND_MESSAGE, msg);

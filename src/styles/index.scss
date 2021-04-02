@@ -355,9 +355,12 @@ form {
     padding: 1em 1em;
   }
   &-controller {
+    margin-top: 1em;
     display: flex;
     justify-content: flex-end;
-    margin-top: 1em;
+    form {
+      display: flex;
+    }
     .btn-icon {
       margin-left: 0.1em;
     }

@@ -12,7 +12,7 @@ import { toast } from "react-toastify";
 import Button from "../reusables/Button";
 import { STATE, SOCKET_TYPE } from "../../misc/globals";
 
-const GamePage = ({ letter, adj }) => {
+const GamePage = () => {
   const history = useHistory();
   const location = useLocation();
   const roomId = location.pathname.split("/").pop();
@@ -24,6 +24,8 @@ const GamePage = ({ letter, adj }) => {
   const [players, setPlayers] = useState([]); // [{id,username},...]
   const [answers, setAnswers] = useState({});
   const [boardMsg, setBoardMsg] = useState({});
+  const [letter, setLetter] = useState("");
+  const [theme, setTheme] = useState([]);
   const answerRef = useRef("");
 
   // watch playerlist
@@ -101,7 +103,7 @@ const GamePage = ({ letter, adj }) => {
         break;
     }
     setBoardMsg(boardList);
-  }, [state, players, answers]);
+  }, [state, players, answers, currentUser.uid]);
 
   // init socket server
   useEffect(() => {
@@ -117,18 +119,22 @@ const GamePage = ({ letter, adj }) => {
   useEffect(() => {
     if (socket == null) return;
 
-    socket.on(SOCKET_TYPE.SEND_MESSAGE, (msg) => toast.info(msg));
+    socket.on(SOCKET_TYPE.PLAYERS_CHANGED, (newPlayers) => {
+      setPlayers(newPlayers);
+    });
     socket.on(SOCKET_TYPE.CHANGE_STATE, (newState) => {
       setState(newState);
     });
-    socket.on(SOCKET_TYPE.PLAYERS_CHANGED, (newPlayers) => {
-      setPlayers(newPlayers);
+    socket.on(SOCKET_TYPE.GET_THEME, ({ startingLetter, themeList }) => {
+      setLetter(startingLetter);
+      setTheme(themeList);
     });
     socket.on(SOCKET_TYPE.SEND_ANSWER, ({ userId, answer }) => {
       const answers_list = Object.assign({}, answers);
       answers_list[userId] = answer;
       setAnswers(answers_list);
     });
+    socket.on(SOCKET_TYPE.SEND_MESSAGE, (msg) => toast.info(msg));
 
     return () => {
       Object.keys(SOCKET_TYPE).forEach((type) => {
@@ -146,6 +152,7 @@ const GamePage = ({ letter, adj }) => {
       .then(() => {
         socket.emit(SOCKET_TYPE.CHANGE_STATE, STATE.ANSWER);
         setState(STATE.ANSWER);
+        socket.emit(SOCKET_TYPE.GET_THEME);
       })
       .catch((err) => {
         toast.err(err.message);
@@ -168,6 +175,10 @@ const GamePage = ({ letter, adj }) => {
     socket.emit(SOCKET_TYPE.CHANGE_STATE, STATE.SHOW_ANSWER);
     setState(STATE.SHOW_ANSWER);
   };
+  const changeTheme = (e) => {
+    e.preventDefault();
+    socket.emit(SOCKET_TYPE.GET_THEME);
+  };
 
   return (
     <>
@@ -179,14 +190,15 @@ const GamePage = ({ letter, adj }) => {
             <div className="gamepage-theme">
               <span>{letter}</span>
               からはじまる
-              <span>{adj}</span>
-              言葉
+              <span>{theme[1]}</span>
+              {theme[0]}?
             </div>
           )}
           {state === STATE.BEFORE_GAME && isOwner && <Button text="ゲーム開始" onClick={gameStart} />}
           {state === STATE.ANSWER && isOwner && Object.keys(answers).length === players.length && (
             <Button text="回答開示" onClick={showAnswer} />
           )}
+          {state === STATE.ANSWER && isOwner && <Button text="お題変更" onClick={changeTheme} />}
           {players.length}/{room.maxPlayers}
           <div className="gamepage-board shadow">
             {players.length > 0 &&

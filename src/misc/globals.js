@@ -7,8 +7,9 @@ export const STATE = {
 
 // you need to change server.js as well
 export const SOCKET_TYPE = {
-  CHANGE_STATE: "CHANGE_STATE",
   PLAYERS_CHANGED: "PLAYERS_CHANGED",
+  CHANGE_STATE: "CHANGE_STATE",
+  GET_THEME: "GET_THEME",
   SEND_MESSAGE: "SEND_MESSAGE",
   SEND_ANSWER: "SEND_ANSWER",
 };
