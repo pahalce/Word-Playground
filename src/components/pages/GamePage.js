@@ -123,16 +123,6 @@ const GamePage = () => {
     setBoardMsg(boardList);
   }, [state, players, answers, currentUser.uid]);
 
-  // init socket server
-  // useEffect(() => {
-  //   const newSocket = io("http://localhost:5000", {
-  //     query: { id: roomId, userId: currentUser.uid, username },
-  //   });
-  //   setSocket(newSocket);
-
-  //   return () => newSocket.close();
-  // }, [roomId, currentUser.uid, username]);
-
   // socket events
   useEffect(() => {
     if (socket == null) return;
@@ -149,9 +139,11 @@ const GamePage = () => {
     socket.on(SOCKET_TYPE.CHANGE_STATE, (newState) => {
       setState(newState);
     });
-    socket.on(SOCKET_TYPE.GET_THEME, ({ startingLetter, theme_content }) => {
-      setLetter(startingLetter);
-      setTheme(theme_content);
+    socket.on(SOCKET_TYPE.GET_THEME, (data) => {
+      setState(data.state);
+      setLetter(data.theme.startingLetter);
+      setTheme(data.theme.theme_content);
+      setAnswers(data.answers);
     });
     socket.on(SOCKET_TYPE.SEND_ANSWER, ({ userId, answer }) => {
       const answers_list = Object.assign({}, answers);
@@ -167,15 +159,12 @@ const GamePage = () => {
     };
   }, [socket, answers]);
 
-  const gameStart = (e) => {
-    e.preventDefault();
-
+  const gameStart = () => {
     db.rooms
       .doc(roomId)
       .set({ isGameStarted: true, startingMember: players.map((player) => player.id) }, { merge: true })
       .then(() => {
         socket.emit(SOCKET_TYPE.CHANGE_STATE, STATE.ANSWER);
-        setState(STATE.ANSWER);
         socket.emit(SOCKET_TYPE.GET_THEME);
       })
       .catch((err) => {
@@ -194,13 +183,10 @@ const GamePage = () => {
     socket.emit(SOCKET_TYPE.SEND_ANSWER, { userId: currentUser.uid, answer: answerRef.current.value });
     answerRef.current.value = "";
   };
-  const showAnswer = (e) => {
-    e.preventDefault();
+  const showAnswer = () => {
     socket.emit(SOCKET_TYPE.CHANGE_STATE, STATE.SHOW_ANSWER);
-    setState(STATE.SHOW_ANSWER);
   };
-  const changeTheme = (e) => {
-    e.preventDefault();
+  const changeTheme = () => {
     socket.emit(SOCKET_TYPE.GET_THEME);
   };
 
@@ -222,6 +208,7 @@ const GamePage = () => {
             <Button text="回答開示" onClick={showAnswer} />
           )}
           {state === STATE.ANSWER && isOwner && <Button text="お題変更" onClick={changeTheme} />}
+          {state === STATE.SHOW_ANSWER && isOwner && <Button text="次のお題へ" onClick={changeTheme} />}
           {players.length}/{room.maxPlayers}
           <div className="gamepage-board shadow">
             {players.length > 0 &&

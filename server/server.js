@@ -62,16 +62,19 @@ io.on("connection", (socket) => {
   io.to(id).emit(SOCKET_TYPE.PLAYERS_CHANGED, room_list[id].players);
   socket.on(SOCKET_TYPE.CHANGE_STATE, (state) => {
     room_list[id].state = state;
-    socket.to(id).emit(SOCKET_TYPE.CHANGE_STATE, state);
+    io.to(id).emit(SOCKET_TYPE.CHANGE_STATE, state);
   });
   socket.on(SOCKET_TYPE.GET_THEME, () => {
+    room_list[id].answers = {};
+    room_list[id].state = STATE.ANSWER;
     const newTheme = {
       startingLetter: themes.getRandomLetter(),
       theme_content: themes.getRandomTheme(),
     };
     room_list[id].theme = newTheme;
-    io.to(id).emit(SOCKET_TYPE.GET_THEME, newTheme);
+    io.to(id).emit(SOCKET_TYPE.GET_THEME, room_list[id]);
   });
+
   socket.on(SOCKET_TYPE.SEND_MESSAGE, (msg) => {
     socket.to(id).emit(SOCKET_TYPE.SEND_MESSAGE, msg);
   });
@@ -83,7 +86,7 @@ io.on("connection", (socket) => {
   socket.on("disconnecting", (reason) => {
     room_list[id].players = room_list[id].players.filter((player) => player.id !== userId);
     socket.to(id).emit(SOCKET_TYPE.PLAYERS_CHANGED, room_list[id].players);
-    if (room_list[id].players.length === 0) {
+    if (room_list[id] && room_list[id].players.length === 0) {
       delete room_list[id];
     }
   });
