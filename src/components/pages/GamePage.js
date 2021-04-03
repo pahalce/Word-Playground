@@ -28,18 +28,32 @@ const GamePage = () => {
   const [theme, setTheme] = useState("");
   const answerRef = useRef("");
 
-  // watch playerlist
+  // init connection to room
   useEffect(() => {
+    let newSocket;
     db.rooms
       .doc(roomId)
       .get()
       .then((doc) => {
         if (doc.exists) {
           if (doc.data().isGameStarted === true) {
-            toast.error("This room is closed.");
-            history.push("/rooms");
-            return;
+            // not allowed to enter (game is already started && you are not reconnecting)
+            if (!doc.data().startingMember.includes(currentUser.uid)) {
+              toast.error("This room is closed.");
+              history.push("/rooms");
+              return;
+            }
+            // reconnect to room
+            newSocket = io("http://localhost:5000", {
+              query: { id: roomId, userId: currentUser.uid, username, reconnecting: true },
+            });
+          } else {
+            // first time to enter room
+            newSocket = io("http://localhost:5000", {
+              query: { id: roomId, userId: currentUser.uid, username, reconnecting: false },
+            });
           }
+          setSocket(newSocket);
           setRoom(db.formatDoc(doc));
           const owner = doc.data().owner;
           if (owner === currentUser.uid) {
@@ -61,9 +75,13 @@ const GamePage = () => {
       }
     );
 
-    return unsubscribe;
+    return () => {
+      unsubscribe();
+      newSocket?.close();
+    };
   }, [roomId, username, location.pathname, currentUser.uid, history]);
 
+  // handle board message
   useEffect(() => {
     const boardList = {};
     players.forEach((player) => {
@@ -106,14 +124,14 @@ const GamePage = () => {
   }, [state, players, answers, currentUser.uid]);
 
   // init socket server
-  useEffect(() => {
-    const newSocket = io("http://localhost:5000", {
-      query: { id: roomId, userId: currentUser.uid, username },
-    });
-    setSocket(newSocket);
+  // useEffect(() => {
+  //   const newSocket = io("http://localhost:5000", {
+  //     query: { id: roomId, userId: currentUser.uid, username },
+  //   });
+  //   setSocket(newSocket);
 
-    return () => newSocket.close();
-  }, [roomId, currentUser.uid, username]);
+  //   return () => newSocket.close();
+  // }, [roomId, currentUser.uid, username]);
 
   // socket events
   useEffect(() => {
@@ -121,6 +139,12 @@ const GamePage = () => {
 
     socket.on(SOCKET_TYPE.PLAYERS_CHANGED, (newPlayers) => {
       setPlayers(newPlayers);
+    });
+    socket.on(SOCKET_TYPE.RECONNECT, (data) => {
+      setState(data.state);
+      setLetter(data.theme.startingLetter);
+      setTheme(data.theme.theme_content);
+      setAnswers(data.answers);
     });
     socket.on(SOCKET_TYPE.CHANGE_STATE, (newState) => {
       setState(newState);
@@ -148,7 +172,7 @@ const GamePage = () => {
 
     db.rooms
       .doc(roomId)
-      .set({ isGameStarted: true }, { merge: true })
+      .set({ isGameStarted: true, startingMember: players.map((player) => player.id) }, { merge: true })
       .then(() => {
         socket.emit(SOCKET_TYPE.CHANGE_STATE, STATE.ANSWER);
         setState(STATE.ANSWER);

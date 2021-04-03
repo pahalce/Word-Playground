@@ -27,6 +27,7 @@ const CreateRoom = () => {
         owner: currentUser.uid,
         maxPlayers: maxPlayersRef.current.value,
         isGameStarted: false,
+        startingMember: [],
         createdAt: db.getCurrentTimestamp(),
       });
       toast.success("ルームを作成しました");
