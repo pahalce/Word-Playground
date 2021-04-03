@@ -25,7 +25,7 @@ const GamePage = () => {
   const [answers, setAnswers] = useState({});
   const [boardMsg, setBoardMsg] = useState({});
   const [letter, setLetter] = useState("");
-  const [theme, setTheme] = useState([]);
+  const [theme, setTheme] = useState("");
   const answerRef = useRef("");
 
   // watch playerlist
@@ -125,9 +125,9 @@ const GamePage = () => {
     socket.on(SOCKET_TYPE.CHANGE_STATE, (newState) => {
       setState(newState);
     });
-    socket.on(SOCKET_TYPE.GET_THEME, ({ startingLetter, themeList }) => {
+    socket.on(SOCKET_TYPE.GET_THEME, ({ startingLetter, theme_content }) => {
       setLetter(startingLetter);
-      setTheme(themeList);
+      setTheme(theme_content);
     });
     socket.on(SOCKET_TYPE.SEND_ANSWER, ({ userId, answer }) => {
       const answers_list = Object.assign({}, answers);
@@ -190,8 +190,7 @@ const GamePage = () => {
             <div className="gamepage-theme">
               <span>{letter}</span>
               からはじまる
-              <span>{theme[1]}</span>
-              {theme[0]}?
+              {theme}
             </div>
           )}
           {state === STATE.BEFORE_GAME && isOwner && <Button text="ゲーム開始" onClick={gameStart} />}

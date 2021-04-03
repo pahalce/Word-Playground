@@ -45,7 +45,7 @@ io.on("connection", (socket) => {
   socket.on(SOCKET_TYPE.GET_THEME, () => {
     io.to(id).emit(SOCKET_TYPE.GET_THEME, {
       startingLetter: themes.getRandomLetter(),
-      themeList: themes.getRandomTheme(),
+      theme_content: themes.getRandomTheme(),
     });
   });
   socket.on(SOCKET_TYPE.SEND_MESSAGE, (msg) => {

@@ -1,17 +1,10 @@
 const fs = require("fs");
 
-const r = JSON.parse(fs.readFileSync("themes.json", "utf8"));
-const themesHa = r["は"];
-const themesBa = r["ば"];
+const data = JSON.parse(fs.readFileSync("themes.json", "utf8"));
+const themes = data["themes"];
 exports.getRandomTheme = () => {
-  const num = Math.floor(Math.random() * (themesHa.length + themesBa.length));
-  let theme_list;
-  if (num <= themesHa.length - 1) {
-    theme_list = ["は", themesHa[num]];
-  } else {
-    theme_list = ["ば", themesBa[num - themesHa.length]];
-  }
-  return theme_list;
+  const num = Math.floor(Math.random() * themes.length);
+  return themes[num];
 };
 
 const letters =
