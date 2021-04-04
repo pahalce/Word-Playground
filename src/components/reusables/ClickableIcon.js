@@ -1,7 +1,10 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
-const ClickableIcon = ({ before, after, size }) => {
+const ClickableIcon = ({ before, after, size, selected }) => {
   const [clicked, setClicked] = useState(false);
+  useEffect(() => {
+    setClicked(selected)
+  }, [selected])
 
   return (
     <div

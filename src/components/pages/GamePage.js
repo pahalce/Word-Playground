@@ -11,6 +11,9 @@ import io from "socket.io-client";
 import { toast } from "react-toastify";
 import Button from "../reusables/Button";
 import { STATE, SOCKET_TYPE } from "../../misc/globals";
+import ClickableIcon from "../reusables/ClickableIcon";
+import { BsHeart, BsFillHeartFill } from "react-icons/bs";
+
 
 const GamePage = () => {
   const history = useHistory();
@@ -27,6 +30,8 @@ const GamePage = () => {
   const [letter, setLetter] = useState("");
   const [theme, setTheme] = useState("");
   const answerRef = useRef("");
+  const [votingTo, setVotingTo] = useState(null); // userId
+
 
   // init connection to room
   useEffect(() => {
@@ -113,8 +118,19 @@ const GamePage = () => {
         });
         break;
 
+      case STATE.VOTE:
+        players.forEach((player) => {
+          boardList[player.id] = answers[player.id];
+        });
+        break;
+      
+      case STATE.VOTE_DONE:
+      players.forEach((player) => {
+        boardList[player.id] = answers[player.id];
+      });
+      break;
+
       default:
-        toast("indef");
         Object.keys(boardList).forEach((key) => {
           boardList[key] = "待機中...";
         });
@@ -151,6 +167,10 @@ const GamePage = () => {
       setAnswers(answers_list);
     });
     socket.on(SOCKET_TYPE.SEND_MESSAGE, (msg) => toast.info(msg));
+    socket.on(SOCKET_TYPE.VOTE_DONE, () => {
+      setState(STATE.VOTE_DONE)
+      setVotingTo(null)
+    });
 
     return () => {
       Object.keys(SOCKET_TYPE).forEach((type) => {
@@ -189,6 +209,19 @@ const GamePage = () => {
   const changeTheme = () => {
     socket.emit(SOCKET_TYPE.GET_THEME);
   };
+  const startVote = () => {
+    socket.emit(SOCKET_TYPE.CHANGE_STATE, STATE.VOTE);
+  }
+  const votePlayer = (userId) => {
+    if (votingTo !== userId) {
+      setVotingTo(userId)
+      socket.emit(SOCKET_TYPE.VOTE, {voteBy:currentUser.uid, voteTo:userId});
+    } else {
+      // unclick voted card
+      socket.emit(SOCKET_TYPE.VOTE, {voteBy:currentUser.uid, voteTo:null});
+      setVotingTo(null)
+    }
+  }
 
   return (
     <>
@@ -208,21 +241,32 @@ const GamePage = () => {
             <Button text="回答開示" onClick={showAnswer} />
           )}
           {state === STATE.ANSWER && isOwner && <Button text="お題変更" onClick={changeTheme} />}
-          {state === STATE.SHOW_ANSWER && isOwner && <Button text="次のお題へ" onClick={changeTheme} />}
+          {state === STATE.SHOW_ANSWER && isOwner && <Button text="投票へ" onClick={startVote} />}
+          {state === STATE.VOTE_DONE && isOwner && <Button text="開票" onClick={changeTheme} />}
           {players.length}/{room.maxPlayers}
           <div className="gamepage-board shadow">
             {players.length > 0 &&
               players.map((player) => {
                 return (
-                  <Card
-                    key={player.id}
-                    title={player.username}
-                    content={boardMsg[player.id]}
-                    width="24vw"
-                    height="24vh"
-                    fontSize="1.4em"
-                    isOwner={room.owner === player.id}
-                  />
+                  <div className="gamepage-board-card" key={player.id}>
+                    <Card
+                      title={player.username}
+                      content={boardMsg[player.id]}
+                      width="24vw"
+                      height="24vh"
+                      fontSize="1.4em"
+                      isOwner={room.owner === player.id}
+                      selected={votingTo === player.id}
+                      showBottom={false} // hide default icon
+                    />
+                    {/* show icon only when state is VOTE */}
+                    <div className="gamepage-board-card-icon" style={state === STATE.VOTE && player.id !== currentUser.uid ? {"display": "inline-block"} : {"display": "none"}}
+                    onClick={() => {
+                        votePlayer(player.id)
+                      }}>
+                      <ClickableIcon before={BsHeart} after={BsFillHeartFill} size={"1.4"} selected={votingTo === player.id} />
+                    </div>
+                  </div> 
                 );
               })}
           </div>

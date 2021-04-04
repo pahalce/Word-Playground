@@ -12,7 +12,6 @@ import UpdateProfile from "./pages/UpdateProfile";
 import CreateRoom from "./pages/CreateRoom";
 import Rooms from "./pages/Rooms";
 import { RoomProvider } from "../contexts/RoomContext";
-
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
