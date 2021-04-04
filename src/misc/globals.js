@@ -1,5 +1,6 @@
 // you need to change server.js as well
 export const SOCKET_TYPE = {
+  INIT_CONNECTION: "INIT_CONNECTION",
   PLAYERS_CHANGED: "PLAYERS_CHANGED",
   RECONNECT: "RECONNECT",
   CHANGE_STATE: "CHANGE_STATE",
@@ -8,6 +9,7 @@ export const SOCKET_TYPE = {
   SEND_ANSWER: "SEND_ANSWER",
   VOTE: "VOTE",
   VOTE_DONE: "VOTE_DONE",
+  CALC_POINTS: "CALC_POINTS",
 };
 
 export const STATE = {
@@ -16,6 +18,7 @@ export const STATE = {
   SHOW_ANSWER: "SHOW_ANSWER",
   VOTE: "VOTE",
   VOTE_DONE: "VOTE_DONE",
+  SHOW_POINTS: "SHOW_POINTS",
 };
 
 

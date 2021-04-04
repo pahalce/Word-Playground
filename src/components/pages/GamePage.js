@@ -31,6 +31,7 @@ const GamePage = () => {
   const [theme, setTheme] = useState("");
   const answerRef = useRef("");
   const [votingTo, setVotingTo] = useState(null); // userId
+  const [points, setPoints] = useState({});
 
 
   // init connection to room
@@ -142,24 +143,20 @@ const GamePage = () => {
   // socket events
   useEffect(() => {
     if (socket == null) return;
-
+    socket.on(SOCKET_TYPE.INIT_CONNECTION, (data) => {
+      updateAllStates(data)
+    });
     socket.on(SOCKET_TYPE.PLAYERS_CHANGED, (newPlayers) => {
       setPlayers(newPlayers);
     });
     socket.on(SOCKET_TYPE.RECONNECT, (data) => {
-      setState(data.state);
-      setLetter(data.theme.startingLetter);
-      setTheme(data.theme.theme_content);
-      setAnswers(data.answers);
+      updateAllStates(data)
     });
     socket.on(SOCKET_TYPE.CHANGE_STATE, (newState) => {
       setState(newState);
     });
     socket.on(SOCKET_TYPE.GET_THEME, (data) => {
-      setState(data.state);
-      setLetter(data.theme.startingLetter);
-      setTheme(data.theme.theme_content);
-      setAnswers(data.answers);
+      updateAllStates(data)
     });
     socket.on(SOCKET_TYPE.SEND_ANSWER, ({ userId, answer }) => {
       const answers_list = Object.assign({}, answers);
@@ -171,6 +168,11 @@ const GamePage = () => {
       setState(STATE.VOTE_DONE)
       setVotingTo(null)
     });
+    socket.on(SOCKET_TYPE.CALC_POINTS, (points) => {
+      // update points
+      setPoints(points)
+      setState(STATE.SHOW_POINTS)
+    })
 
     return () => {
       Object.keys(SOCKET_TYPE).forEach((type) => {
@@ -179,6 +181,13 @@ const GamePage = () => {
     };
   }, [socket, answers]);
 
+  const updateAllStates = (data) => {
+    setState(data.state);
+    setLetter(data.theme.startingLetter);
+    setTheme(data.theme.theme_content);
+    setAnswers(data.answers);
+    setPoints(data.points);
+  }
   const gameStart = () => {
     db.rooms
       .doc(roomId)
@@ -222,6 +231,9 @@ const GamePage = () => {
       setVotingTo(null)
     }
   }
+  const updatePoints = () => {
+    socket.emit(SOCKET_TYPE.CALC_POINTS)
+  }
 
   return (
     <>
@@ -237,12 +249,13 @@ const GamePage = () => {
             </div>
           )}
           {state === STATE.BEFORE_GAME && isOwner && <Button text="ゲーム開始" onClick={gameStart} />}
+          {state === STATE.ANSWER && isOwner && <Button text="お題変更" onClick={changeTheme} />}
           {state === STATE.ANSWER && isOwner && Object.keys(answers).length === players.length && (
             <Button text="回答開示" onClick={showAnswer} />
           )}
-          {state === STATE.ANSWER && isOwner && <Button text="お題変更" onClick={changeTheme} />}
           {state === STATE.SHOW_ANSWER && isOwner && <Button text="投票へ" onClick={startVote} />}
-          {state === STATE.VOTE_DONE && isOwner && <Button text="開票" onClick={changeTheme} />}
+          {state === STATE.VOTE_DONE && isOwner && <Button text="開票" onClick={updatePoints} />}
+          {state === STATE.SHOW_POINTS && isOwner && <Button text="次のお題へ" onClick={changeTheme} />}
           {players.length}/{room.maxPlayers}
           <div className="gamepage-board shadow">
             {players.length > 0 &&
@@ -250,7 +263,7 @@ const GamePage = () => {
                 return (
                   <div className="gamepage-board-card" key={player.id}>
                     <Card
-                      title={player.username}
+                      title={player.username + ":" + points[player.id]}
                       content={boardMsg[player.id]}
                       width="24vw"
                       height="24vh"
