@@ -37,41 +37,43 @@ const GamePage = () => {
   // init connection to room
   useEffect(() => {
     let newSocket;
-    db.rooms
-      .doc(roomId)
-      .get()
-      .then((doc) => {
-        if (doc.exists) {
-          if (doc.data().isGameStarted === true) {
-            // not allowed to enter (game is already started && you are not reconnecting)
-            if (!doc.data().startingMember.includes(currentUser.uid)) {
-              toast.error("This room is closed.");
-              history.push("/rooms");
-              return;
-            }
-            // reconnect to room
-            newSocket = io("http://localhost:5000", {
-              query: { id: roomId, userId: currentUser.uid, username, reconnecting: true },
-            });
-          } else {
-            // first time to enter room
-            newSocket = io("http://localhost:5000", {
-              query: { id: roomId, userId: currentUser.uid, username, reconnecting: false },
-            });
-          }
-          setSocket(newSocket);
-          setRoom(db.formatDoc(doc));
-          const owner = doc.data().owner;
-          if (owner === currentUser.uid) {
-            setIsOwner(true);
-          }
-        } else {
-          toast.error("No such document!");
+    const initConnection = async () => {
+      try {
+        const doc = await db.rooms.doc(roomId).get();
+        if (!doc.exists) {
+          throw Error("Error getting document");
         }
-      })
-      .catch((error) => {
-        toast.error("Error getting document:", error);
-      });
+        if (doc.data().isGameStarted === true) {
+          // not allowed to enter (game is already started && you are not reconnecting)
+          if (!doc.data().startingMember.includes(currentUser.uid)) {
+            toast.error("This room is closed.");
+            history.push("/rooms");
+            return;
+          }
+          // reconnect to room
+          const idToken = await currentUser.getIdToken(true);
+          newSocket = io(process.env.REACT_APP_SERVER_URL, {
+            query: { id: roomId, username, reconnecting: true, idToken },
+          });
+        } else {
+          // first time to enter room
+          const idToken = await currentUser.getIdToken(true);
+          newSocket = io(process.env.REACT_APP_SERVER_URL, {
+            query: { id: roomId, username, reconnecting: false, idToken },
+          });
+        }
+        setSocket(newSocket);
+        setRoom(db.formatDoc(doc));
+        const owner = doc.data().owner;
+        if (owner === currentUser.uid) {
+          setIsOwner(true);
+        }
+      } catch (err) {
+        toast.error(err.message)
+      }
+    }
+
+    initConnection();
     const unsubscribe = db.rooms.doc(roomId).onSnapshot(
       (snapshot) => {
         setRoom(db.formatDoc(snapshot));
@@ -83,9 +85,9 @@ const GamePage = () => {
 
     return () => {
       unsubscribe();
-      newSocket?.close();
+      newSocket.close();
     };
-  }, [roomId, username, location.pathname, currentUser.uid, history]);
+  }, [roomId, currentUser, username, location.pathname, currentUser.uid, history]);
 
   // handle board message
   useEffect(() => {
@@ -143,6 +145,9 @@ const GamePage = () => {
   // socket events
   useEffect(() => {
     if (socket == null) return;
+    socket.on("connect_error", (err) => {
+      toast.error(err.message); // not authorized
+    });
     socket.on(SOCKET_TYPE.INIT_CONNECTION, (data) => {
       updateAllStates(data)
     });
@@ -197,7 +202,7 @@ const GamePage = () => {
         socket.emit(SOCKET_TYPE.GET_THEME);
       })
       .catch((err) => {
-        toast.err(err.message);
+        toast.log(err.message);
       });
   };
   const sendAnswer = (e) => {
@@ -263,7 +268,7 @@ const GamePage = () => {
                 return (
                   <div className="gamepage-board-card" key={player.id}>
                     <Card
-                      title={player.username + ":" + points[player.id]}
+                      title={player.username + ":" + (points[player.id] ? points[player.id] : 0)}
                       content={boardMsg[player.id]}
                       width="24vw"
                       height="24vh"
