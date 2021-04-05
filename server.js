@@ -1,28 +1,14 @@
+require('dotenv').config();
 const express = require("express")
 var admin = require('firebase-admin');
 const themes = require("./theme");
 const {SOCKET_TYPE, STATE} = require("./globals")
 
 
-
-/* properties */
-/*
-  room_list = {
-    roomId: {
-      players: [ {id,username}, ...],
-      state: state,
-      theme: {startingLetter, theme_content},
-      answers: { id:answer, ... },
-      votes: {id:id},
-      points: {id:0},
-    },
-    ...
-  } 
-*/
-let room_list = {};
-
 const PORT = process.env.PORT || 5000;
+const client_url = process.env.CLIENT_URL;
 const server = express().listen(PORT);
+
 
 admin.initializeApp({
   credential: admin.credential.applicationDefault()
@@ -30,7 +16,7 @@ admin.initializeApp({
 
 const io = require("socket.io")(server, {
   cors: {
-    origin: "http://localhost:3000",
+    origin: client_url,
     methods: ["GET", "POST"],
   },
 });
@@ -45,6 +31,22 @@ io.use((socket, next) => {
     next(new Error(err.message))
   })
 });
+
+
+let room_list = {};
+/*
+  room_list = {
+    roomId: {
+      players: [ {id,username}, ...],
+      state: state,
+      theme: {startingLetter, theme_content},
+      answers: { id:answer, ... },
+      votes: {id:id},
+      points: {id:0},
+    },
+    ...
+  } 
+*/
 
 io.on("connection", (socket) => {
   const id = socket.handshake.query.id;
