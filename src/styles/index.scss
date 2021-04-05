@@ -1,25 +1,7 @@
 @import url("https://fonts.googleapis.com/css2?family=Noto+Serif:wght@400;700&display=swap");
-
-/* -variables- */
-/* colors */
-$white: #eeeeee;
-$pure-white: #ffffff;
-$black: #222831;
-$pure-black: #000000;
-$grey: #393e46;
-$primary: #00adb5;
-$danger1: #f4442e;
-$danger2: #d64933;
-$danger3: #d7331d;
-$danger4: #bc2c1a; //hov
-// $danger5: #d7331d;
-
-/* sizes */
-$size-smaller: 1rem;
-$size-small: 1.2rem;
-$size-regular: 1.6rem;
-$size-big: 2rem;
-$size-bigger: 3rem;
+@import "variables";
+@import "hamburgerMenu";
+@import "mixins";
 
 /* -setup styles- */
 html {
@@ -70,6 +52,10 @@ form {
 
 .form-bottom-text {
   margin-top: 2em;
+  @include mq() {
+    margin-top: 0.5em;
+    color: red !important;
+  }
 }
 
 /* -reusables- */
@@ -84,6 +70,9 @@ form {
   font-size: $size-bigger;
   color: $primary;
   text-align: center;
+  @include mq() {
+    font-size: $size-big;
+  }
 }
 /* effects */
 .shadow {
@@ -113,6 +102,19 @@ form {
       font-weight: 600;
       line-height: 2em;
       cursor: pointer;
+      @include mq() {
+        display: none;
+      }
+    }
+    .title-sp {
+      display: none;
+      font-size: $size-big;
+      font-weight: 600;
+      line-height: 2em;
+      cursor: pointer;
+      @include mq() {
+        display: inline;
+      }
     }
     .nav {
       display: flex;
@@ -122,6 +124,12 @@ form {
         list-style: none;
         margin-left: 2em;
         cursor: pointer;
+        @include mq() {
+          margin-left: 1em;
+        }
+        @include mq(sm) {
+          display: none;
+        }
         &:hover {
           color: $primary;
         }
@@ -311,23 +319,20 @@ form {
 .forgot-password,
 .create-room {
   .input-wrapper {
+    display: flex;
+    flex-direction: column;
     align-items: center;
-    width: 70%;
-    margin: 4vh auto 0 auto;
+    // width: 70%;
+    margin: 2vh auto 0 auto;
   }
-  .form-label {
-    width: 30%;
-    & + .form-input {
-      width: 100% - 30%;
-    }
-  }
+
   .form-input {
     width: 100%;
     padding: 0.5em 0.5em;
   }
   .submit-wrapper {
     width: 100%;
-    margin-top: 2em;
+    margin-top: 1em;
     .btn-submit {
       margin-left: auto;
     }

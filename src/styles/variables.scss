@@ -1,0 +1,27 @@
+/* -variables- */
+/* colors */
+$white: #eeeeee;
+$pure-white: #ffffff;
+$black: #222831;
+$pure-black: #000000;
+$grey: #393e46;
+$primary: #00adb5;
+$danger1: #f4442e;
+$danger2: #d64933;
+$danger3: #d7331d;
+$danger4: #bc2c1a; //hov
+// $danger5: #d7331d;
+
+/* sizes */
+$size-smaller: 1rem;
+$size-small: 1.2rem;
+$size-regular: 1.6rem;
+$size-big: 2rem;
+$size-bigger: 3rem;
+
+$breakpoints: (
+  "sm": "screen and (max-width: 400px)",
+  "md": "screen and (max-width: 768px)",
+  "lg": "screen and (max-width: 1000px)",
+  "xl": "screen and (max-width: 1200px)",
+) !default;

@@ -28,11 +28,14 @@ function App() {
                 <Route path="/login" component={Login} />
                 <Route path="/forgot-password" component={ForgotPassword} />
                 <PrivateRoute path="/profile" component={Profile} />
-                <PrivateRoute path="/update-profile" component={UpdateProfile} />
+                <PrivateRoute
+                  path="/update-profile"
+                  component={UpdateProfile}
+                />
                 <Route exact path="/" component={MainPage} />
                 <PrivateRoute path="/create-room" component={CreateRoom} />
                 <PrivateRoute path="/rooms" render={() => <Rooms />} />
-                <PrivateRoute path="/gamepage" render={() => <GamePage letter="あ" adj="おいしい" />} />
+                <PrivateRoute path="/gamepage" render={() => <GamePage />} />
               </div>
             </RoomProvider>
           </AuthProvider>

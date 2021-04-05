@@ -1,5 +1,7 @@
 import { Link, useHistory, useLocation } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
+import HamburgerMenu from "./HamburgerMenu";
+import { toast } from "react-toastify";
 
 const Navbar = () => {
   const { currentUser, logout } = useAuth();
@@ -12,15 +14,20 @@ const Navbar = () => {
       window.alert("logged out");
       history.push("/login");
     } catch {
-      window.alert("failed to logout");
+      toast.success("ログアウトしました");
     }
   };
+
   return (
     <div className="header">
       <div className="header-container">
         <Link to="/" className="title link">
           Word Playground
         </Link>
+        <Link to="/" className="title-sp link">
+          WP
+        </Link>
+        <HamburgerMenu />
         <ul className="nav">
           {currentUser && location.pathname.split("/")[1] !== "gamepage" && (
             <Link to="/rooms" className="nav-item link">
