@@ -1,33 +1,9 @@
+const express = require("express")
+var admin = require('firebase-admin');
 const themes = require("./theme");
+const {SOCKET_TYPE, STATE} = require("./globals")
 
-// you need to change globals.js as well
-const SOCKET_TYPE = {
-  INIT_CONNECTION: "INIT_CONNECTION",
-  PLAYERS_CHANGED: "PLAYERS_CHANGED",
-  RECONNECT: "RECONNECT",
-  CHANGE_STATE: "CHANGE_STATE",
-  GET_THEME: "GET_THEME",
-  SEND_MESSAGE: "SEND_MESSAGE",
-  SEND_ANSWER: "SEND_ANSWER",
-  VOTE: "VOTE",
-  VOTE_DONE: "VOTE_DONE",
-  CALC_POINTS: "CALC_POINTS",
-};
-const STATE = {
-  BEFORE_GAME: "BEFORE_GAME",
-  ANSWER: "ANSWER",
-  SHOW_ANSWER: "SHOW_ANSWER",
-  VOTE: "VOTE",
-  VOTE_DONE: "VOTE_DONE",
-  SHOW_POINTS: "SHOW_POINTS",
-};
 
-const io = require("socket.io")(5000, {
-  cors: {
-    origin: "http://localhost:3000",
-    methods: ["GET", "POST"],
-  },
-});
 
 /* properties */
 /*
@@ -44,6 +20,31 @@ const io = require("socket.io")(5000, {
   } 
 */
 let room_list = {};
+
+const PORT = process.env.PORT || 5000;
+const server = express().listen(PORT);
+
+admin.initializeApp({
+  credential: admin.credential.applicationDefault()
+});
+
+const io = require("socket.io")(server, {
+  cors: {
+    origin: "http://localhost:3000",
+    methods: ["GET", "POST"],
+  },
+});
+
+//middlewares
+io.use((socket, next) => {
+  const idToken = socket.handshake.query.idToken;
+  admin.auth().verifyIdToken(idToken).then((decodedToken) => {
+    socket.handshake.query.userId = decodedToken.uid
+    next()
+  }).catch(err => {
+    next(new Error(err.message))
+  })
+});
 
 io.on("connection", (socket) => {
   const id = socket.handshake.query.id;
@@ -72,7 +73,6 @@ io.on("connection", (socket) => {
     room_list[id].points[userId] = 0;
   }
   io.to(socket.id).emit(SOCKET_TYPE.INIT_CONNECTION, room_list[id]);
-
 
   io.to(id).emit(SOCKET_TYPE.PLAYERS_CHANGED, room_list[id].players);
   socket.on(SOCKET_TYPE.CHANGE_STATE, (state) => {
