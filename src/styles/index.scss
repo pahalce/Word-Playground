@@ -144,6 +144,10 @@ form {
   height: 60vh;
   font-size: $size-big;
   font-weight: 800;
+  @include mq() {
+    font-size: $size-regular;
+    height: 50vw;
+  }
   &-banner {
     display: flex;
     justify-content: center;
@@ -166,6 +170,13 @@ form {
       left: 50%;
       top: 50%;
       transform: translate(-50%, -50%);
+      @include mq() {
+        width: 100%;
+      }
+      @include mq(sm) {
+        font-size: 1rem;
+        width: 100%;
+      }
     }
     &-bottom {
       display: flex;
@@ -200,6 +211,7 @@ form {
 .button {
   border: none;
   padding: 0.2em 1.2em;
+  min-width: 5rem;
   background-color: $black;
   color: $primary;
   font-size: $size-small;
@@ -245,15 +257,21 @@ form {
 
 .room-link {
   display: flex;
-  justify-content: space-between;
+  flex-direction: column;
+  justify-content: center;
   align-items: center;
-  width: 30vw;
+  min-width: 30vw;
   background-color: $pure-white;
   font-size: $size-regular;
   font-weight: 600;
   color: $black;
   padding: 0.6em 1em;
   margin-top: 2vh;
+  &-buttons {
+    display: flex;
+    justify-content: space-around;
+    width: 100%;
+  }
 }
 
 /* Input */
@@ -267,6 +285,9 @@ form {
   margin-right: 2vw;
   text-align: end;
   color: $black;
+  @include mq(sm) {
+    font-size: $size-small;
+  }
 }
 .form-input {
   border: 2px solid $black;
@@ -277,6 +298,9 @@ form {
     font-size: inherit;
     opacity: 0.8;
     text-align: center;
+  }
+  @include mq(sm) {
+    padding: 0.01em;
   }
 }
 
@@ -340,15 +364,48 @@ form {
 }
 
 .gamepage {
+  h1 {
+    margin-bottom: 0;
+  }
+  &-acitve-players {
+    text-align: center;
+    font-size: $size-small;
+    font-weight: 600;
+    color: $black;
+    @include mq() {
+      font-size: $size-smaller;
+    }
+  }
   &-theme {
     text-align: center;
-    padding-top: 4vh;
+    padding-top: 2vh;
+    padding-bottom: 4vh;
     font-size: $size-regular;
     font-weight: 600;
+    @include mq(sm) {
+      font-size: $size-small;
+      padding-top: 0;
+      padding-bottom: 2vh;
+    }
     span {
       font-size: $size-bigger;
       font-weight: 800;
       color: $primary;
+      @include mq(sm) {
+        font-size: $size-big;
+        font-weight: 600;
+      }
+    }
+    &-content {
+      display: inline;
+      @include mq() {
+        display: block;
+      }
+    }
+  }
+  .button {
+    @include mq() {
+      font-size: $size-smaller;
     }
   }
   &-board {
@@ -360,6 +417,33 @@ form {
     padding: 1em 1em;
     &-card {
       position: relative;
+      width: 20em;
+      height: 12em;
+      @include mq() {
+        height: 6em;
+        & + & {
+          margin-top: 1em;
+        }
+      }
+      .card {
+        height: 100%;
+        background-color: $pure-white;
+      }
+      .card-content {
+        height: 100%;
+        background-color: transparent;
+        &-text {
+          position: relative;
+          transform: translate(-50%, -100%);
+        }
+      }
+      .card-banner {
+        padding: 0 1rem;
+        font-size: $size-small;
+        @include mq() {
+          font-size: $size-smaller;
+        }
+      }
       &-icon {
         position: absolute;
         bottom: 1rem;
@@ -374,6 +458,9 @@ form {
     justify-content: flex-end;
     form {
       display: flex;
+      .form-input {
+        max-width: 40vw;
+      }
     }
     .btn-icon {
       margin-left: 0.1em;
@@ -383,18 +470,18 @@ form {
 
 .profile {
   text-align: center;
-  font-size: $size-small;
   color: $black;
+  p {
+    font-size: $size-big;
+    @include mq() {
+      font-size: $size-small;
+    }
+    @include mq(sm) {
+      font-size: $size-smaller;
+    }
+  }
 }
 
 .update-profile {
   text-align: center;
-}
-
-.rooms {
-  .room-link {
-    &-name {
-      margin-right: 1em;
-    }
-  }
 }

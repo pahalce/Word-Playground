@@ -11,10 +11,10 @@ const Navbar = () => {
   const handleLogout = async () => {
     try {
       await logout();
-      window.alert("logged out");
+      toast.success("ログアウトしました");
       history.push("/login");
     } catch {
-      toast.success("ログアウトしました");
+      toast.error("ログアウトに失敗しました");
     }
   };
 

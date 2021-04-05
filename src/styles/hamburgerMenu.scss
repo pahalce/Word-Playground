@@ -51,6 +51,10 @@
   font-size: 1.15em;
 }
 
+.nav-item {
+  cursor: pointer;
+}
+
 /* Morph shape necessary with bubble or elastic */
 .bm-morph-shape {
   fill: #373a47;

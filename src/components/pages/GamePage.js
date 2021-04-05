@@ -14,7 +14,6 @@ import { STATE, SOCKET_TYPE } from "../../misc/globals";
 import ClickableIcon from "../reusables/ClickableIcon";
 import { BsHeart, BsFillHeartFill } from "react-icons/bs";
 
-
 const GamePage = () => {
   const history = useHistory();
   const location = useLocation();
@@ -32,7 +31,6 @@ const GamePage = () => {
   const answerRef = useRef("");
   const [votingTo, setVotingTo] = useState(null); // userId
   const [points, setPoints] = useState({});
-
 
   // init connection to room
   useEffect(() => {
@@ -69,9 +67,9 @@ const GamePage = () => {
           setIsOwner(true);
         }
       } catch (err) {
-        toast.error(err.message)
+        toast.error(err.message);
       }
-    }
+    };
 
     initConnection();
     const unsubscribe = db.rooms.doc(roomId).onSnapshot(
@@ -87,7 +85,14 @@ const GamePage = () => {
       unsubscribe();
       newSocket.close();
     };
-  }, [roomId, currentUser, username, location.pathname, currentUser.uid, history]);
+  }, [
+    roomId,
+    currentUser,
+    username,
+    location.pathname,
+    currentUser.uid,
+    history,
+  ]);
 
   // handle board message
   useEffect(() => {
@@ -126,12 +131,12 @@ const GamePage = () => {
           boardList[player.id] = answers[player.id];
         });
         break;
-      
+
       case STATE.VOTE_DONE:
-      players.forEach((player) => {
-        boardList[player.id] = answers[player.id];
-      });
-      break;
+        players.forEach((player) => {
+          boardList[player.id] = answers[player.id];
+        });
+        break;
 
       default:
         Object.keys(boardList).forEach((key) => {
@@ -149,19 +154,19 @@ const GamePage = () => {
       toast.error(err.message); // not authorized
     });
     socket.on(SOCKET_TYPE.INIT_CONNECTION, (data) => {
-      updateAllStates(data)
+      updateAllStates(data);
     });
     socket.on(SOCKET_TYPE.PLAYERS_CHANGED, (newPlayers) => {
       setPlayers(newPlayers);
     });
     socket.on(SOCKET_TYPE.RECONNECT, (data) => {
-      updateAllStates(data)
+      updateAllStates(data);
     });
     socket.on(SOCKET_TYPE.CHANGE_STATE, (newState) => {
       setState(newState);
     });
     socket.on(SOCKET_TYPE.GET_THEME, (data) => {
-      updateAllStates(data)
+      updateAllStates(data);
     });
     socket.on(SOCKET_TYPE.SEND_ANSWER, ({ userId, answer }) => {
       const answers_list = Object.assign({}, answers);
@@ -170,14 +175,14 @@ const GamePage = () => {
     });
     socket.on(SOCKET_TYPE.SEND_MESSAGE, (msg) => toast.info(msg));
     socket.on(SOCKET_TYPE.VOTE_DONE, () => {
-      setState(STATE.VOTE_DONE)
-      setVotingTo(null)
+      setState(STATE.VOTE_DONE);
+      setVotingTo(null);
     });
     socket.on(SOCKET_TYPE.CALC_POINTS, (points) => {
       // update points
-      setPoints(points)
-      setState(STATE.SHOW_POINTS)
-    })
+      setPoints(points);
+      setState(STATE.SHOW_POINTS);
+    });
 
     return () => {
       Object.keys(SOCKET_TYPE).forEach((type) => {
@@ -192,11 +197,17 @@ const GamePage = () => {
     setTheme(data.theme.theme_content);
     setAnswers(data.answers);
     setPoints(data.points);
-  }
+  };
   const gameStart = () => {
     db.rooms
       .doc(roomId)
-      .set({ isGameStarted: true, startingMember: players.map((player) => player.id) }, { merge: true })
+      .set(
+        {
+          isGameStarted: true,
+          startingMember: players.map((player) => player.id),
+        },
+        { merge: true }
+      )
       .then(() => {
         socket.emit(SOCKET_TYPE.CHANGE_STATE, STATE.ANSWER);
         socket.emit(SOCKET_TYPE.GET_THEME);
@@ -214,7 +225,10 @@ const GamePage = () => {
     }
     answer_list[currentUser.uid] = answerRef.current.value;
     setAnswers(answer_list);
-    socket.emit(SOCKET_TYPE.SEND_ANSWER, { userId: currentUser.uid, answer: answerRef.current.value });
+    socket.emit(SOCKET_TYPE.SEND_ANSWER, {
+      userId: currentUser.uid,
+      answer: answerRef.current.value,
+    });
     answerRef.current.value = "";
   };
   const showAnswer = () => {
@@ -225,72 +239,112 @@ const GamePage = () => {
   };
   const startVote = () => {
     socket.emit(SOCKET_TYPE.CHANGE_STATE, STATE.VOTE);
-  }
+  };
   const votePlayer = (userId) => {
     if (votingTo !== userId) {
-      setVotingTo(userId)
-      socket.emit(SOCKET_TYPE.VOTE, {voteBy:currentUser.uid, voteTo:userId});
+      setVotingTo(userId);
+      socket.emit(SOCKET_TYPE.VOTE, {
+        voteBy: currentUser.uid,
+        voteTo: userId,
+      });
     } else {
       // unclick voted card
-      socket.emit(SOCKET_TYPE.VOTE, {voteBy:currentUser.uid, voteTo:null});
-      setVotingTo(null)
+      socket.emit(SOCKET_TYPE.VOTE, { voteBy: currentUser.uid, voteTo: null });
+      setVotingTo(null);
     }
-  }
+  };
   const updatePoints = () => {
-    socket.emit(SOCKET_TYPE.CALC_POINTS)
-  }
+    socket.emit(SOCKET_TYPE.CALC_POINTS);
+  };
+
+  const getDisplayName = (username, point) => {
+    const stringAll = username + ":" + (point ? point : 0);
+    const length = stringAll.length;
+    const allowLength = 10;
+    if (length > allowLength) {
+      return (
+        username.slice(0, username.length - (length - allowLength - 2)) +
+        "... " +
+        ":" +
+        (point ? point : 0)
+      );
+    }
+    return stringAll;
+  };
 
   return (
     <>
       {room && (
         <div className="gamepage">
           <h1 className="text-title">部屋:{room.roomName}</h1>
-          <p>state:{state.toString()}</p>
+          <div className="gamepage-acitve-players">
+            人数：{players.length}/{room.maxPlayers}
+          </div>
           {state !== STATE.BEFORE_GAME && (
             <div className="gamepage-theme">
               <span>{letter}</span>
               からはじまる
-              {theme}
+              <div className="gamepage-theme-content">{theme}</div>
             </div>
           )}
-          {state === STATE.BEFORE_GAME && isOwner && <Button text="ゲーム開始" onClick={gameStart} />}
-          {state === STATE.ANSWER && isOwner && <Button text="お題変更" onClick={changeTheme} />}
-          {state === STATE.ANSWER && isOwner && Object.keys(answers).length === players.length && (
-            <Button text="回答開示" onClick={showAnswer} />
+          {state === STATE.BEFORE_GAME && isOwner && (
+            <Button text="ゲーム開始" onClick={gameStart} />
           )}
-          {state === STATE.SHOW_ANSWER && isOwner && <Button text="投票へ" onClick={startVote} />}
-          {state === STATE.VOTE_DONE && isOwner && <Button text="開票" onClick={updatePoints} />}
-          {state === STATE.SHOW_POINTS && isOwner && <Button text="次のお題へ" onClick={changeTheme} />}
-          {players.length}/{room.maxPlayers}
+          {state === STATE.ANSWER && isOwner && (
+            <Button text="お題変更" onClick={changeTheme} />
+          )}
+          {state === STATE.ANSWER &&
+            isOwner &&
+            Object.keys(answers).length === players.length && (
+              <Button text="回答開示" onClick={showAnswer} />
+            )}
+          {state === STATE.SHOW_ANSWER && isOwner && (
+            <Button text="投票へ" onClick={startVote} />
+          )}
+          {state === STATE.VOTE_DONE && isOwner && (
+            <Button text="開票" onClick={updatePoints} />
+          )}
+          {state === STATE.SHOW_POINTS && isOwner && (
+            <Button text="次のお題へ" onClick={changeTheme} />
+          )}
           <div className="gamepage-board shadow">
             {players.length > 0 &&
               players.map((player) => {
                 return (
                   <div className="gamepage-board-card" key={player.id}>
                     <Card
-                      title={player.username + ":" + (points[player.id] ? points[player.id] : 0)}
+                      title={getDisplayName(player.username, points[player.id])}
                       content={boardMsg[player.id]}
-                      width="24vw"
-                      height="24vh"
-                      fontSize="1.4em"
                       isOwner={room.owner === player.id}
                       selected={votingTo === player.id}
                       showBottom={false} // hide default icon
                     />
                     {/* show icon only when state is VOTE */}
-                    <div className="gamepage-board-card-icon" style={state === STATE.VOTE && player.id !== currentUser.uid ? {"display": "inline-block"} : {"display": "none"}}
-                    onClick={() => {
-                        votePlayer(player.id)
-                      }}>
-                      <ClickableIcon before={BsHeart} after={BsFillHeartFill} size={"1.4"} selected={votingTo === player.id} />
+                    <div
+                      className="gamepage-board-card-icon"
+                      style={
+                        state === STATE.VOTE && player.id !== currentUser.uid
+                          ? { display: "inline-block" }
+                          : { display: "none" }
+                      }
+                      onClick={() => {
+                        votePlayer(player.id);
+                      }}
+                    >
+                      <ClickableIcon
+                        before={BsHeart}
+                        after={BsFillHeartFill}
+                        size={"1.4"}
+                        selected={votingTo === player.id}
+                      />
                     </div>
-                  </div> 
+                  </div>
                 );
               })}
           </div>
           <div className="gamepage-controller">
             <form onSubmit={sendAnswer}>
-              <Input type="txt" placeholder="回答を記入してください" inputRef={answerRef} />
+              <Input type="txt" placeholder="回答" inputRef={answerRef} />
               <Submit disabled={state !== STATE.ANSWER} />
             </form>
             <BtnIcon icon={MdInsertEmoticon} size="2.25em" />
