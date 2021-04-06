@@ -407,8 +407,18 @@ form {
     }
   }
   .button {
+    margin-bottom: 0.2em;
     @include mq() {
       font-size: $size-smaller;
+    }
+  }
+  .advice-text {
+    text-align: center;
+    font-size: $size-regular;
+    color: $white;
+    background-color: $black;
+    @include mq() {
+      font-size: $size-small;
     }
   }
   &-board {

@@ -32,6 +32,7 @@ const GamePage = () => {
   const answerRef = useRef("");
   const [votingTo, setVotingTo] = useState(null); // userId
   const [points, setPoints] = useState({});
+  const [adviceText, setAdviceText] = useState("ゲーム開始まで待機中...");
 
   // init connection to room
   useEffect(() => {
@@ -110,6 +111,7 @@ const GamePage = () => {
         break;
 
       case STATE.ANSWER:
+        setAdviceText("回答を考え中...🤔");
         players.forEach((player) => {
           if (answers[player.id]) {
             boardList[player.id] = "回答済み";
@@ -123,14 +125,15 @@ const GamePage = () => {
         break;
 
       case STATE.SHOW_ANSWER:
+        setAdviceText("回答を見せあおう👀");
         players.forEach((player) => {
           if (answers[player.id]) {
             if (answers[player.id].shown) {
               boardList[player.id] = answers[player.id].answer;
             } else {
-              boardList[player.id] = "待機中...";
+              boardList[player.id] = "回答を隠し中";
               if (player.id === currentUser.uid) {
-                boardList[player.id] = `待機中...(${
+                boardList[player.id] = `回答を隠し中(${
                   answers[player.id].answer
                 })`;
               }
@@ -140,8 +143,16 @@ const GamePage = () => {
         break;
 
       case STATE.VOTE:
+        setAdviceText("✋投票時間✋");
         players.forEach((player) => {
           boardList[player.id] = answers[player.id].answer;
+        });
+        break;
+
+      case STATE.SHOW_POINTS:
+        setAdviceText("投票結果");
+        players.forEach((player) => {
+          boardList[player.id] = "得点: " + points[player.id];
         });
         break;
 
@@ -152,7 +163,7 @@ const GamePage = () => {
         break;
     }
     setBoardMsg(boardList);
-  }, [state, players, answers, currentUser.uid]);
+  }, [state, players, answers, points, currentUser.uid]);
 
   // socket events
   useEffect(() => {
@@ -342,6 +353,13 @@ const GamePage = () => {
               onClick={changeTheme}
             />
           )}
+          {state === STATE.VOTE && (
+            <Button
+              text={`次のお題へ(${changeThemeVoteNum}/${players.length})`}
+              disabled
+            />
+          )}
+          <div className="advice-text">{adviceText}</div>
           <div className="gamepage-board shadow">
             {players.length > 0 &&
               players.map((player) => {
