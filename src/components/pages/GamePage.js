@@ -28,6 +28,7 @@ const GamePage = () => {
   const [boardMsg, setBoardMsg] = useState({});
   const [letter, setLetter] = useState("");
   const [theme, setTheme] = useState("");
+  const [changeThemeVoteNum, setchangeThemeVoteNum] = useState(0);
   const answerRef = useRef("");
   const [votingTo, setVotingTo] = useState(null); // userId
   const [points, setPoints] = useState({});
@@ -128,8 +129,9 @@ const GamePage = () => {
             } else {
               boardList[player.id] = "待機中...";
               if (player.id === currentUser.uid) {
-                boardList[player.id] =
-                  "待機中..." + `(${answers[player.id].answer})`;
+                boardList[player.id] = `"待機中..."(${
+                  answers[player.id].answer
+                })`;
               }
             }
           }
@@ -137,12 +139,6 @@ const GamePage = () => {
         break;
 
       case STATE.VOTE:
-        players.forEach((player) => {
-          boardList[player.id] = answers[player.id].answer;
-        });
-        break;
-
-      case STATE.VOTE_DONE:
         players.forEach((player) => {
           boardList[player.id] = answers[player.id].answer;
         });
@@ -178,6 +174,9 @@ const GamePage = () => {
     socket.on(SOCKET_TYPE.GET_THEME, (data) => {
       updateAllStates(data);
     });
+    socket.on(SOCKET_TYPE.CHANGE_THEME_VOTE, (num) => {
+      setchangeThemeVoteNum(num);
+    });
     socket.on(SOCKET_TYPE.SEND_ANSWER, ({ userId, answer }) => {
       const answers_list = Object.assign({}, answers);
       answers_list[userId] = answer;
@@ -190,7 +189,7 @@ const GamePage = () => {
     });
     socket.on(SOCKET_TYPE.SEND_MESSAGE, (msg) => toast.info(msg));
     socket.on(SOCKET_TYPE.VOTE_DONE, () => {
-      setState(STATE.VOTE_DONE);
+      setState(STATE.SHOW_POINTS);
       setVotingTo(null);
     });
     socket.on(SOCKET_TYPE.CALC_POINTS, (points) => {
@@ -225,7 +224,7 @@ const GamePage = () => {
         }
       }
     }
-  }, [answers, players, isOwner, socket, state]);
+  }, [answers, isOwner, socket, state]);
 
   const updateAllStates = (data) => {
     // set answer first before state changes (to reset answer before new theme is shown)
@@ -277,9 +276,6 @@ const GamePage = () => {
   const changeTheme = () => {
     socket.emit(SOCKET_TYPE.GET_THEME);
   };
-  const startVote = () => {
-    socket.emit(SOCKET_TYPE.CHANGE_STATE, STATE.VOTE);
-  };
   const votePlayer = (userId) => {
     if (votingTo !== userId) {
       setVotingTo(userId);
@@ -292,9 +288,6 @@ const GamePage = () => {
       socket.emit(SOCKET_TYPE.VOTE, { voteBy: currentUser.uid, voteTo: null });
       setVotingTo(null);
     }
-  };
-  const updatePoints = () => {
-    socket.emit(SOCKET_TYPE.CALC_POINTS);
   };
 
   const getDisplayName = (username, point) => {
@@ -330,17 +323,20 @@ const GamePage = () => {
           {state === STATE.BEFORE_GAME && isOwner && (
             <Button text="ゲーム開始" onClick={gameStart} />
           )}
-          {state === STATE.ANSWER && isOwner && (
-            <Button text="お題変更" onClick={changeTheme} />
+          {state === STATE.ANSWER && (
+            <Button
+              text={`お題変更(${changeThemeVoteNum}/${players.length})`}
+              onClick={changeTheme}
+            />
           )}
           {state === STATE.SHOW_ANSWER && (
             <Button text="回答を見せる" onClick={showAnswer} />
           )}
-          {state === STATE.VOTE_DONE && isOwner && (
-            <Button text="開票" onClick={updatePoints} />
-          )}
-          {state === STATE.SHOW_POINTS && isOwner && (
-            <Button text="次のお題へ" onClick={changeTheme} />
+          {state === STATE.SHOW_POINTS && (
+            <Button
+              text={`次のお題へ(${changeThemeVoteNum}/${players.length})`}
+              onClick={changeTheme}
+            />
           )}
           <div className="gamepage-board shadow">
             {players.length > 0 &&
