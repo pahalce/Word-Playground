@@ -44,8 +44,9 @@ let room_list = {};
     roomId: {
       players: [ {id,username}, ...],
       state: state,
+      changeThemeVoteNum: 0,
       theme: {startingLetter, theme_content},
-      answers: { id:answer, ... },
+      answers: { id:{answer,shown:false}, ... },
       votes: {id:id},
       points: {id:0},
     },
@@ -74,9 +75,32 @@ io.on("connection", (socket) => {
   } else {
     room_list[id].players.push({ id: userId, username });
   }
-
   if (reconnecting === "true") {
-    io.to(socket.id).emit(SOCKET_TYPE.RECONNECT, room_list[id]);
+    switch (room_list[id].state) {
+      case STATE.SHOW_ANSWER:
+        // set answer
+        if (!room_list[id].answers[userId]) {
+          room_list[id].answers[userId] = {
+            answer: "次のゲームを待機中",
+            shown: true,
+          };
+        }
+        break;
+      case STATE.VOTE:
+        // reset vote
+        delete room_list[id].votes[userId];
+        if (!room_list[id].answers[userId]) {
+          room_list[id].answers[userId] = {
+            answer: "次のゲームを待機中",
+            shown: true,
+          };
+        }
+        break;
+
+      default:
+        break;
+    }
+    io.to(id).emit(SOCKET_TYPE.RECONNECT, room_list[id]);
   } else {
     room_list[id].points[userId] = 0;
   }
@@ -127,24 +151,23 @@ io.on("connection", (socket) => {
       return;
     }
     room_list[id].votes[voteBy] = voteTo;
+    const voteMissing = room_list[id].players.some((player) => {
+      return !room_list[id].votes[player.id];
+    });
     // all players voted
-    if (
-      Object.keys(room_list[id].votes).length === room_list[id].players.length
-    ) {
+    if (!voteMissing) {
       room_list[id].state = STATE.SHOW_POINTS;
       io.to(id).emit(SOCKET_TYPE.VOTE_DONE);
+      Object.keys(room_list[id].votes).forEach((fromId) => {
+        const to = room_list[id].votes[fromId];
+        room_list[id].points[to] += 1;
+      });
+      room_list[id].votes = {};
+      io.to(id).emit(SOCKET_TYPE.CALC_POINTS, room_list[id].points);
     }
   });
 
-  socket.on(SOCKET_TYPE.CALC_POINTS, () => {
-    Object.keys(room_list[id].votes).forEach((fromId) => {
-      const to = room_list[id].votes[fromId];
-      room_list[id].points[to] += 1;
-    });
-    room_list[id].votes = {};
-    room_list[id].state = STATE.SHOW_POINTS;
-    io.to(id).emit(SOCKET_TYPE.CALC_POINTS, room_list[id].points);
-  });
+  socket.on(SOCKET_TYPE.CALC_POINTS, () => {});
 
   socket.on("disconnecting", (reason) => {
     if (!room_list[id]) {
@@ -155,7 +178,7 @@ io.on("connection", (socket) => {
     );
     socket.to(id).emit(SOCKET_TYPE.PLAYERS_CHANGED, room_list[id].players);
     if (room_list[id] && room_list[id].players.length === 0) {
-      delete room_list[id];
+      delete room;
     }
   });
 });
