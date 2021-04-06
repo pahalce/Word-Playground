@@ -40,7 +40,8 @@ const GamePage = () => {
       try {
         const doc = await db.rooms.doc(roomId).get();
         if (!doc.exists) {
-          throw Error("Error getting document");
+          toast.error("This room is closed.");
+          history.push("/rooms");
         }
         if (doc.data().isGameStarted === true) {
           // not allowed to enter (game is already started && you are not reconnecting)
@@ -129,7 +130,7 @@ const GamePage = () => {
             } else {
               boardList[player.id] = "待機中...";
               if (player.id === currentUser.uid) {
-                boardList[player.id] = `"待機中..."(${
+                boardList[player.id] = `待機中...(${
                   answers[player.id].answer
                 })`;
               }
@@ -210,21 +211,24 @@ const GamePage = () => {
     if (isOwner) {
       if (state === STATE.ANSWER) {
         // go to show_answer state when all players answered
-        if (Object.keys(answers).length === players.length) {
+        const missingAnswer = players.some((player) => {
+          return !answers[player.id];
+        });
+        if (!missingAnswer) {
           socket.emit(SOCKET_TYPE.CHANGE_STATE, SOCKET_TYPE.SHOW_ANSWER);
         }
       }
       if (state === STATE.SHOW_ANSWER) {
         // go to vote state when all answers are shown
-        const shownAnswerNum = Object.keys(answers).filter(
-          (playerId) => answers[playerId].shown === true
-        ).length;
-        if (shownAnswerNum === players.length) {
+        const notShown = players.some(
+          (player) => answers[player.id] && answers[player.id].shown === false
+        );
+        if (!notShown) {
           socket.emit(SOCKET_TYPE.CHANGE_STATE, SOCKET_TYPE.VOTE);
         }
       }
     }
-  }, [answers, isOwner, socket, state]);
+  }, [answers, isOwner, socket, state, players]);
 
   const updateAllStates = (data) => {
     // set answer first before state changes (to reset answer before new theme is shown)
