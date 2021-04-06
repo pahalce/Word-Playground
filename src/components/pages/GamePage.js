@@ -112,7 +112,7 @@ const GamePage = () => {
           if (answers[player.id]) {
             boardList[player.id] = "回答済み";
             if (player.id === currentUser.uid) {
-              boardList[player.id] += `(${answers[player.id]})`;
+              boardList[player.id] += `(${answers[player.id].answer})`;
             }
           } else {
             boardList[player.id] = "回答中...";
@@ -122,19 +122,29 @@ const GamePage = () => {
 
       case STATE.SHOW_ANSWER:
         players.forEach((player) => {
-          boardList[player.id] = answers[player.id];
+          if (answers[player.id]) {
+            if (answers[player.id].shown) {
+              boardList[player.id] = answers[player.id].answer;
+            } else {
+              boardList[player.id] = "待機中...";
+              if (player.id === currentUser.uid) {
+                boardList[player.id] =
+                  "待機中..." + `(${answers[player.id].answer})`;
+              }
+            }
+          }
         });
         break;
 
       case STATE.VOTE:
         players.forEach((player) => {
-          boardList[player.id] = answers[player.id];
+          boardList[player.id] = answers[player.id].answer;
         });
         break;
 
       case STATE.VOTE_DONE:
         players.forEach((player) => {
-          boardList[player.id] = answers[player.id];
+          boardList[player.id] = answers[player.id].answer;
         });
         break;
 
@@ -173,6 +183,11 @@ const GamePage = () => {
       answers_list[userId] = answer;
       setAnswers(answers_list);
     });
+    socket.on(SOCKET_TYPE.SHOW_ANSWER, (playerId) => {
+      const answers_list = Object.assign({}, answers);
+      answers_list[playerId].shown = true;
+      setAnswers(answers_list);
+    });
     socket.on(SOCKET_TYPE.SEND_MESSAGE, (msg) => toast.info(msg));
     socket.on(SOCKET_TYPE.VOTE_DONE, () => {
       setState(STATE.VOTE_DONE);
@@ -191,12 +206,34 @@ const GamePage = () => {
     };
   }, [socket, answers]);
 
+  // control states
+  useEffect(() => {
+    if (isOwner) {
+      if (state === STATE.ANSWER) {
+        // go to show_answer state when all players answered
+        if (Object.keys(answers).length === players.length) {
+          socket.emit(SOCKET_TYPE.CHANGE_STATE, SOCKET_TYPE.SHOW_ANSWER);
+        }
+      }
+      if (state === STATE.SHOW_ANSWER) {
+        // go to vote state when all answers are shown
+        const shownAnswerNum = Object.keys(answers).filter(
+          (playerId) => answers[playerId].shown === true
+        ).length;
+        if (shownAnswerNum === players.length) {
+          socket.emit(SOCKET_TYPE.CHANGE_STATE, SOCKET_TYPE.VOTE);
+        }
+      }
+    }
+  }, [answers, players, isOwner, socket, state]);
+
   const updateAllStates = (data) => {
-    setState(data.state);
+    // set answer first before state changes (to reset answer before new theme is shown)
+    setAnswers(data.answers);
     setLetter(data.theme.startingLetter);
     setTheme(data.theme.theme_content);
-    setAnswers(data.answers);
     setPoints(data.points);
+    setState(data.state);
   };
   const gameStart = () => {
     db.rooms
@@ -223,7 +260,10 @@ const GamePage = () => {
       answerRef.current.value = "";
       return;
     }
-    answer_list[currentUser.uid] = answerRef.current.value;
+    answer_list[currentUser.uid] = {
+      answer: answerRef.current.value,
+      shown: false,
+    };
     setAnswers(answer_list);
     socket.emit(SOCKET_TYPE.SEND_ANSWER, {
       userId: currentUser.uid,
@@ -232,7 +272,7 @@ const GamePage = () => {
     answerRef.current.value = "";
   };
   const showAnswer = () => {
-    socket.emit(SOCKET_TYPE.CHANGE_STATE, STATE.SHOW_ANSWER);
+    socket.emit(SOCKET_TYPE.SHOW_ANSWER, currentUser.uid);
   };
   const changeTheme = () => {
     socket.emit(SOCKET_TYPE.GET_THEME);
@@ -293,13 +333,8 @@ const GamePage = () => {
           {state === STATE.ANSWER && isOwner && (
             <Button text="お題変更" onClick={changeTheme} />
           )}
-          {state === STATE.ANSWER &&
-            isOwner &&
-            Object.keys(answers).length === players.length && (
-              <Button text="回答開示" onClick={showAnswer} />
-            )}
-          {state === STATE.SHOW_ANSWER && isOwner && (
-            <Button text="投票へ" onClick={startVote} />
+          {state === STATE.SHOW_ANSWER && (
+            <Button text="回答を見せる" onClick={showAnswer} />
           )}
           {state === STATE.VOTE_DONE && isOwner && (
             <Button text="開票" onClick={updatePoints} />
