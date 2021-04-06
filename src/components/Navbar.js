@@ -9,6 +9,9 @@ const Navbar = () => {
   const location = useLocation();
 
   const handleLogout = async () => {
+    if (!window.confirm("ログアウトしますか？")) {
+      return;
+    }
     try {
       await logout();
       toast.success("ログアウトしました");
