@@ -1,20 +1,18 @@
-require('dotenv').config();
-const express = require("express")
-var admin = require('firebase-admin');
+require("dotenv").config();
+const express = require("express");
+var admin = require("firebase-admin");
 const themes = require("./theme");
-const {SOCKET_TYPE, STATE} = require("./globals")
-
+const { SOCKET_TYPE, STATE } = require("./globals");
 
 const PORT = process.env.PORT || 5000;
 const client_url = process.env.CLIENT_URL;
 const server = express().listen(PORT);
 
-
 admin.initializeApp({
   credential: admin.credential.cert({
     projectId: process.env.FIREBASE_PROJECT_ID,
     clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
-    privateKey: process.env.FIREBASE_PRIVATE_KEY.replace(/\\n/g, '\n')
+    privateKey: process.env.FIREBASE_PRIVATE_KEY.replace(/\\n/g, "\n"),
   }),
 });
 
@@ -28,14 +26,17 @@ const io = require("socket.io")(server, {
 //middlewares
 io.use((socket, next) => {
   const idToken = socket.handshake.query.idToken;
-  admin.auth().verifyIdToken(idToken).then((decodedToken) => {
-    socket.handshake.query.userId = decodedToken.uid
-    next()
-  }).catch(err => {
-    next(new Error(err.message))
-  })
+  admin
+    .auth()
+    .verifyIdToken(idToken)
+    .then((decodedToken) => {
+      socket.handshake.query.userId = decodedToken.uid;
+      next();
+    })
+    .catch((err) => {
+      next(new Error(err.message));
+    });
 });
-
 
 let room_list = {};
 /*
@@ -62,12 +63,12 @@ io.on("connection", (socket) => {
   // first player to join the room
   if (room_list[id] === undefined) {
     room_list[id] = {
-      players: [{ id: userId, username}],
+      players: [{ id: userId, username }],
       state: STATE.BEFORE_GAME,
       theme: {},
       answers: {},
       votes: {},
-      points: {}
+      points: {},
     };
   } else {
     room_list[id].players.push({ id: userId, username });
@@ -100,33 +101,45 @@ io.on("connection", (socket) => {
     socket.to(id).emit(SOCKET_TYPE.SEND_MESSAGE, msg);
   });
   socket.on(SOCKET_TYPE.SEND_ANSWER, ({ userId, answer }) => {
-    room_list[id].answers[userId] = answer;
-    socket.to(id).emit(SOCKET_TYPE.SEND_ANSWER, { userId, answer });
+    const newAnswer = { answer, shown: false };
+    room_list[id].answers[userId] = newAnswer;
+    socket.to(id).emit(SOCKET_TYPE.SEND_ANSWER, { userId, answer: newAnswer });
   });
-  socket.on(SOCKET_TYPE.VOTE, ({voteBy, voteTo}) => {
+  socket.on(SOCKET_TYPE.SHOW_ANSWER, (playerId) => {
+    room_list[id].answers[playerId].shown = true;
+    io.to(id).emit(SOCKET_TYPE.SHOW_ANSWER, playerId);
+  });
+  socket.on(SOCKET_TYPE.VOTE, ({ voteBy, voteTo }) => {
     // user re-clicked voted card
     if (voteTo === null) {
-      delete room_list[id].votes[voteBy]
-      return
+      delete room_list[id].votes[voteBy];
+      return;
     }
     room_list[id].votes[voteBy] = voteTo;
     // all players voted
-    if (Object.keys(room_list[id].votes).length === room_list[id].players.length) {
-      io.to(id).emit(SOCKET_TYPE.VOTE_DONE)
+    if (
+      Object.keys(room_list[id].votes).length === room_list[id].players.length
+    ) {
+      io.to(id).emit(SOCKET_TYPE.VOTE_DONE);
     }
   });
 
   socket.on(SOCKET_TYPE.CALC_POINTS, () => {
-    Object.keys(room_list[id].votes).forEach(fromId => {
+    console.log(room_list[id].points);
+
+    Object.keys(room_list[id].votes).forEach((fromId) => {
       const to = room_list[id].votes[fromId];
       room_list[id].points[to] += 1;
-    })
-    room_list[id].votes = {}
-    io.to(id).emit(SOCKET_TYPE.CALC_POINTS, room_list[id].points)
-  })
+    });
+    console.log(room_list[id].points);
+    room_list[id].votes = {};
+    io.to(id).emit(SOCKET_TYPE.CALC_POINTS, room_list[id].points);
+  });
 
   socket.on("disconnecting", (reason) => {
-    room_list[id].players = room_list[id].players.filter((player) => player.id !== userId);
+    room_list[id].players = room_list[id].players.filter(
+      (player) => player.id !== userId
+    );
     socket.to(id).emit(SOCKET_TYPE.PLAYERS_CHANGED, room_list[id].players);
     if (room_list[id] && room_list[id].players.length === 0) {
       delete room_list[id];
