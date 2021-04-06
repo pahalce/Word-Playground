@@ -65,6 +65,7 @@ io.on("connection", (socket) => {
     room_list[id] = {
       players: [{ id: userId, username }],
       state: STATE.BEFORE_GAME,
+      changeThemeVoteNum: 0,
       theme: {},
       answers: {},
       votes: {},
@@ -87,14 +88,24 @@ io.on("connection", (socket) => {
     io.to(id).emit(SOCKET_TYPE.CHANGE_STATE, state);
   });
   socket.on(SOCKET_TYPE.GET_THEME, () => {
-    room_list[id].answers = {};
-    room_list[id].state = STATE.ANSWER;
-    const newTheme = {
-      startingLetter: themes.getRandomLetter(),
-      theme_content: themes.getRandomTheme(),
-    };
-    room_list[id].theme = newTheme;
-    io.to(id).emit(SOCKET_TYPE.GET_THEME, room_list[id]);
+    room_list[id].changeThemeVoteNum += 1;
+    io.to(id).emit(
+      SOCKET_TYPE.CHANGE_THEME_VOTE,
+      room_list[id].changeThemeVoteNum
+    );
+
+    if (room_list[id].changeThemeVoteNum >= room_list[id].players.length / 2) {
+      io.to(id).emit(SOCKET_TYPE.CHANGE_THEME_VOTE, 0);
+      room_list[id].changeThemeVoteNum = 0;
+      room_list[id].answers = {};
+      room_list[id].state = STATE.ANSWER;
+      const newTheme = {
+        startingLetter: themes.getRandomLetter(),
+        theme_content: themes.getRandomTheme(),
+      };
+      room_list[id].theme = newTheme;
+      io.to(id).emit(SOCKET_TYPE.GET_THEME, room_list[id]);
+    }
   });
 
   socket.on(SOCKET_TYPE.SEND_MESSAGE, (msg) => {
@@ -120,23 +131,25 @@ io.on("connection", (socket) => {
     if (
       Object.keys(room_list[id].votes).length === room_list[id].players.length
     ) {
+      room_list[id].state = STATE.SHOW_POINTS;
       io.to(id).emit(SOCKET_TYPE.VOTE_DONE);
     }
   });
 
   socket.on(SOCKET_TYPE.CALC_POINTS, () => {
-    console.log(room_list[id].points);
-
     Object.keys(room_list[id].votes).forEach((fromId) => {
       const to = room_list[id].votes[fromId];
       room_list[id].points[to] += 1;
     });
-    console.log(room_list[id].points);
     room_list[id].votes = {};
+    room_list[id].state = STATE.SHOW_POINTS;
     io.to(id).emit(SOCKET_TYPE.CALC_POINTS, room_list[id].points);
   });
 
   socket.on("disconnecting", (reason) => {
+    if (!room_list[id]) {
+      return;
+    }
     room_list[id].players = room_list[id].players.filter(
       (player) => player.id !== userId
     );
