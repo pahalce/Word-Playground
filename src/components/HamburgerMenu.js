@@ -9,9 +9,12 @@ const HamburgerMenu = () => {
   const location = useLocation();
 
   const handleLogout = async () => {
+    if (!window.confirm("ログアウトしますか？")) {
+      return;
+    }
     try {
       await logout();
-      window.alert("logged out");
+      toast.success("logged out");
       history.push("/login");
     } catch {
       toast.success("ログアウトしました");
