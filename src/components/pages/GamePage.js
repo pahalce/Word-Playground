@@ -355,24 +355,22 @@ const GamePage = () => {
                       showBottom={false} // hide default icon
                     />
                     {/* show icon only when state is VOTE */}
-                    <div
-                      className="gamepage-board-card-icon"
-                      style={
-                        state === STATE.VOTE && player.id !== currentUser.uid
-                          ? { display: "inline-block" }
-                          : { display: "none" }
-                      }
-                      onClick={() => {
-                        votePlayer(player.id);
-                      }}
-                    >
-                      <ClickableIcon
-                        before={BsHeart}
-                        after={BsFillHeartFill}
-                        size={"1.4"}
-                        selected={votingTo === player.id}
-                      />
-                    </div>
+                    {state === STATE.VOTE && player.id !== currentUser.uid && (
+                      <div
+                        className="gamepage-board-card-icon"
+                        onClick={() => {
+                          votePlayer(player.id);
+                        }}
+                      >
+                        <div className="vote-text">投票する→</div>
+                        <ClickableIcon
+                          before={BsHeart}
+                          after={BsFillHeartFill}
+                          size={"1.4"}
+                          selected={votingTo === player.id}
+                        />
+                      </div>
+                    )}
                   </div>
                 );
               })}

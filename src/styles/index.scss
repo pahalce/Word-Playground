@@ -452,6 +452,12 @@ form {
         bottom: 1rem;
         right: 0.6rem;
         transform: translateY(50%);
+        .vote-text {
+          display: inline;
+          color: $black;
+          font-size: $size-smaller;
+          font-weight: 600;
+        }
       }
     }
   }
