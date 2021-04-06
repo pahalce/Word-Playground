@@ -27,7 +27,7 @@ const Navbar = () => {
         <Link to="/" className="title-sp link">
           WP
         </Link>
-        <HamburgerMenu />
+        {location.pathname.split("/")[1] !== "gamepage" && <HamburgerMenu />}
         <ul className="nav">
           {currentUser && location.pathname.split("/")[1] !== "gamepage" && (
             <Link to="/rooms" className="nav-item link">
@@ -45,7 +45,11 @@ const Navbar = () => {
             </li>
           )}
           {currentUser && location.pathname.split("/")[1] === "gamepage" && (
-            <Link to="/rooms" className="nav-item link">
+            <Link
+              to="/rooms"
+              className="nav-item nav-item-show-always link"
+              style={{ display: "block" }}
+            >
               退出
             </Link>
           )}

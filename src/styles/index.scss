@@ -120,7 +120,7 @@ form {
       display: flex;
       margin: 0;
       padding: 0;
-      .nav-item {
+      &-item {
         list-style: none;
         margin-left: 2em;
         cursor: pointer;
@@ -132,6 +132,9 @@ form {
         }
         &:hover {
           color: $primary;
+        }
+        &-show-always {
+          display: block;
         }
       }
     }
