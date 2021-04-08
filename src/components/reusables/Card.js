@@ -1,12 +1,24 @@
 import React from "react";
 import { BsHeart, BsFillHeartFill } from "react-icons/bs";
-import ClickableIcon from "./ClickableIcon";
 import { RiUserStarLine as OwnerIcon } from "react-icons/ri";
+import ClickableIcon from "./buttons/ClickableIcon";
 
-const Card = ({ title, content, bottomText, showBottom=true, width, height, fontSize, isOwner,   }) => {
-  const iconStyle = showBottom ? {"display": "block"} : {"display": "none"}
+const Card = ({
+  title,
+  content,
+  bottomText,
+  showBottom = true,
+  width,
+  height,
+  fontSize,
+  isOwner,
+}) => {
+  const iconStyle = showBottom ? { display: "block" } : { display: "none" };
   return (
-    <div className="card shadow" style={{ width: width, height: height, fontSize: fontSize }}>
+    <div
+      className="card shadow"
+      style={{ width: width, height: height, fontSize: fontSize }}
+    >
       <div className="card-banner">
         {isOwner && <OwnerIcon className="card-banner-icon" />}
         <div>{title}</div>
@@ -15,7 +27,11 @@ const Card = ({ title, content, bottomText, showBottom=true, width, height, font
         <div className="card-content-text">{content}</div>
         <div className="card-content-bottom" style={iconStyle}>
           {bottomText}
-          <ClickableIcon before={BsHeart} after={BsFillHeartFill} size={"1.4"} />
+          <ClickableIcon
+            before={BsHeart}
+            after={BsFillHeartFill}
+            size={"1.4"}
+          />
         </div>
       </div>
     </div>

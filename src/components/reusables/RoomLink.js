@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useHistory } from "react-router";
 import { toast } from "react-toastify";
 import { useRoom } from "../../contexts/RoomContext";
-import Button from "./Button";
+import Button from "./buttons/Button";
 
 const RoomLink = ({ room, roomId, isOwner, isGameStarted }) => {
   const [loading, setLoading] = useState(false);
@@ -30,8 +30,19 @@ const RoomLink = ({ room, roomId, isOwner, isGameStarted }) => {
     <div className="room-link shadow">
       <div className="room-link-name">{room.roomName}</div>
       <div className="room-link-buttons">
-        <Button text={isGameStarted ? "進行中" : "入室"} onClick={handleEnter} disabled={isGameStarted} />
-        {isOwner && <Button disabled={loading} text="削除" className="btn-danger" onClick={handleDelete} />}
+        <Button
+          text={isGameStarted ? "進行中" : "入室"}
+          onClick={handleEnter}
+          disabled={isGameStarted}
+        />
+        {isOwner && (
+          <Button
+            disabled={loading}
+            text="削除"
+            className="btn-danger"
+            onClick={handleDelete}
+          />
+        )}
       </div>
     </div>
   );
