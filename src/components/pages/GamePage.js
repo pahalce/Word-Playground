@@ -2,17 +2,18 @@ import { useEffect, useRef, useState } from "react";
 import Card from "../reusables/Card";
 import Input from "../reusables/form/Input";
 import Submit from "../reusables/form/Submit";
-import BtnIcon from "../reusables/BtnIcon";
-import { MdInsertEmoticon, MdSettings } from "react-icons/md";
+import BtnIcon from "../reusables/buttons/BtnIcon";
+import { MdInsertEmoticon } from "react-icons/md";
 import { useHistory, useLocation } from "react-router";
 import { db } from "../../firebase/firebase";
 import { useAuth } from "../../contexts/AuthContext";
 import io from "socket.io-client";
 import { toast } from "react-toastify";
-import Button from "../reusables/Button";
+import Button from "../reusables/buttons/Button";
 import { STATE, SOCKET_TYPE } from "../../misc/globals";
-import ClickableIcon from "../reusables/ClickableIcon";
+import ClickableIcon from "../reusables/buttons/ClickableIcon";
 import { BsHeart, BsFillHeartFill } from "react-icons/bs";
+import EmojiPicker from "../reusables/buttons/EmojiPicker";
 
 const GamePage = () => {
   const history = useHistory();
@@ -33,6 +34,8 @@ const GamePage = () => {
   const [votingTo, setVotingTo] = useState(null); // userId
   const [points, setPoints] = useState({});
   const [adviceText, setAdviceText] = useState("ゲーム開始まで待機中...");
+  const [pickerVisible, setPickerVisible] = useState(false);
+  const [selectedEmoji, setSelectedEmoji] = useState();
 
   // init connection to room
   useEffect(() => {
@@ -319,6 +322,15 @@ const GamePage = () => {
     }
     return stringAll;
   };
+  const toggleEmojiPicker = () => {
+    const picker = document.querySelector(".emoji-picker");
+    if (pickerVisible) {
+      picker.style.opacity = 0;
+    } else {
+      picker.style.opacity = 1;
+    }
+    setPickerVisible((pickerVisible) => !pickerVisible);
+  };
 
   return (
     <>
@@ -365,6 +377,7 @@ const GamePage = () => {
               players.map((player) => {
                 return (
                   <div className="gamepage-board-card" key={player.id}>
+                    <div className="bubble bubble-bottom-left">👍</div>
                     <Card
                       title={getDisplayName(player.username, points[player.id])}
                       content={boardMsg[player.id]}
@@ -398,8 +411,23 @@ const GamePage = () => {
               <Input type="txt" placeholder="回答" inputRef={answerRef} />
               <Submit disabled={state !== STATE.ANSWER} />
             </form>
-            <BtnIcon icon={MdInsertEmoticon} size="2.25em" />
-            <BtnIcon icon={MdSettings} size="2.25em" />
+            <EmojiPicker
+              setSelectedEmoji={(emoji) => {
+                setSelectedEmoji(emoji);
+                const bubble = document.querySelector(".bubble");
+                bubble.style.opacity = 1;
+                bubble.innerHTML = emoji;
+                setTimeout(() => {
+                  bubble.style.opacity = 0;
+                }, 2000);
+              }}
+            />
+            <BtnIcon
+              icon={MdInsertEmoticon}
+              size="2.25em"
+              onClick={toggleEmojiPicker}
+            />
+            {/* <BtnIcon icon={MdSettings} size="2.25em" /> */}
           </div>
         </div>
       )}
