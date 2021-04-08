@@ -412,13 +412,15 @@ const GamePage = () => {
               setSelectedEmoji={(emoji) => {
                 const emojiPicker = document.querySelector(".emoji-picker");
                 const bubble = document.querySelector(".bubble");
-                emojiPicker.classList.add("show");
+                const iconBtn = document.querySelector(".btn-icon");
+                emojiPicker.classList.remove("show");
                 setSelectedEmoji(emoji);
                 bubble.classList.add("show");
                 bubble.innerHTML = emoji;
                 setTimeout(() => {
                   bubble.classList.remove("show");
                 }, 2000);
+                iconBtn.classList.remove("selected");
               }}
             />
             <BtnIcon
