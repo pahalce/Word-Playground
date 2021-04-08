@@ -323,12 +323,9 @@ const GamePage = () => {
     return stringAll;
   };
   const toggleEmojiPicker = () => {
-    const picker = document.querySelector(".emoji-picker");
-    if (pickerVisible) {
-      picker.style.opacity = 0;
-    } else {
-      picker.style.opacity = 1;
-    }
+    const emojiPicker = document.querySelector(".emoji-picker");
+
+    emojiPicker.classList.toggle("show");
     setPickerVisible((pickerVisible) => !pickerVisible);
   };
 
@@ -413,12 +410,14 @@ const GamePage = () => {
             </form>
             <EmojiPicker
               setSelectedEmoji={(emoji) => {
-                setSelectedEmoji(emoji);
+                const emojiPicker = document.querySelector(".emoji-picker");
                 const bubble = document.querySelector(".bubble");
-                bubble.style.opacity = 1;
+                emojiPicker.classList.add("show");
+                setSelectedEmoji(emoji);
+                bubble.classList.add("show");
                 bubble.innerHTML = emoji;
                 setTimeout(() => {
-                  bubble.style.opacity = 0;
+                  bubble.classList.remove("show");
                 }, 2000);
               }}
             />

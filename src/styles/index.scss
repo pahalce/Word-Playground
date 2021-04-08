@@ -259,7 +259,7 @@ form {
 /* BtnIcon */
 .btn-icon {
   position: relative;
-  background: #eee8e8;
+  background: $white;
   border: 2px solid $grey;
   border-radius: 0.2em;
   width: 1.2em;
@@ -272,6 +272,13 @@ form {
     height: 100%;
     padding: 0.1em;
     transform: translate(-50%, -50%);
+  }
+  &:hover {
+    background-color: rgba($grey, 0.2);
+  }
+  &.selected {
+    box-shadow: none;
+    background-color: rgba($grey, 0.2);
   }
 }
 
@@ -510,6 +517,9 @@ form {
         @include mq(sm) {
           font-size: $size-smaller;
         }
+        &.show {
+          opacity: 1;
+        }
       }
       .bubble-bottom-left:before {
         content: "";
@@ -581,6 +591,9 @@ form {
       transition: opacity 0.3s ease-in-out;
       transform: translateY(-100%);
       z-index: 1;
+      &.show {
+        opacity: 1;
+      }
     }
   }
 }
