@@ -166,8 +166,9 @@ io.on("connection", (socket) => {
       io.to(id).emit(SOCKET_TYPE.CALC_POINTS, room_list[id].points);
     }
   });
-
-  socket.on(SOCKET_TYPE.CALC_POINTS, () => {});
+  socket.on(SOCKET_TYPE.SEND_EMOJI, (userId, emoji) => {
+    socket.to(id).emit(SOCKET_TYPE.SEND_EMOJI, { userId, emoji });
+  });
 
   socket.on("disconnecting", (reason) => {
     if (!room_list[id]) {
