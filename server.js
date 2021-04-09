@@ -187,6 +187,7 @@ io.on("connection", (socket) => {
       (player) => player.id !== userId
     );
     socket.to(id).emit(SOCKET_TYPE.PLAYERS_CHANGED, room_list[id].players);
+
     // change room owner if any players are left
     if (room_list[id].owner === userId && room_list[id].players.length > 0) {
       const newOwnerId = room_list[id].players[0].id;
@@ -205,6 +206,12 @@ io.on("connection", (socket) => {
     }
     if (room_list[id].players.length === 0) {
       delete room;
+      db.rooms
+        .doc(id)
+        .delete()
+        .catch(() => {
+          console.log("failed to delete room");
+        });
     }
   });
 });
