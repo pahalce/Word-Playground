@@ -1,13 +1,8 @@
 require("dotenv").config();
 const express = require("express");
-var admin = require("firebase-admin");
 const themes = require("./theme");
 const { SOCKET_TYPE, STATE } = require("./globals");
-
-const PORT = process.env.PORT || 5000;
-const client_url = process.env.CLIENT_URL;
-const server = express().listen(PORT);
-
+const admin = require("firebase-admin");
 admin.initializeApp({
   credential: admin.credential.cert({
     projectId: process.env.FIREBASE_PROJECT_ID,
@@ -15,6 +10,18 @@ admin.initializeApp({
     privateKey: process.env.FIREBASE_PRIVATE_KEY.replace(/\\n/g, "\n"),
   }),
 });
+
+const firestore = admin.firestore();
+const db = {
+  rooms: firestore.collection("rooms"),
+  formatDoc: (doc) => {
+    return { id: doc.id, ...doc.data() };
+  },
+};
+
+const PORT = process.env.PORT || 5000;
+const client_url = process.env.CLIENT_URL;
+const server = express().listen(PORT);
 
 const io = require("socket.io")(server, {
   cors: {
@@ -43,6 +50,7 @@ let room_list = {};
   room_list = {
     roomId: {
       players: [ {id,username}, ...],
+      owner: userId;
       state: state,
       changeThemeVoteNum: 0,
       theme: {startingLetter, theme_content},
@@ -65,6 +73,7 @@ io.on("connection", (socket) => {
   if (room_list[id] === undefined) {
     room_list[id] = {
       players: [{ id: userId, username }],
+      owner: userId,
       state: STATE.BEFORE_GAME,
       changeThemeVoteNum: 0,
       theme: {},
@@ -178,7 +187,23 @@ io.on("connection", (socket) => {
       (player) => player.id !== userId
     );
     socket.to(id).emit(SOCKET_TYPE.PLAYERS_CHANGED, room_list[id].players);
-    if (room_list[id] && room_list[id].players.length === 0) {
+    // change room owner if any players are left
+    if (room_list[id].owner === userId && room_list[id].players.length > 0) {
+      const newOwnerId = room_list[id].players[0].id;
+      room_list[id].owner = newOwnerId;
+      db.rooms
+        .doc(id)
+        .set(
+          {
+            owner: newOwnerId,
+          },
+          { merge: true }
+        )
+        .catch(() => {
+          console.log("failed to set new owner");
+        });
+    }
+    if (room_list[id].players.length === 0) {
       delete room;
     }
   });
