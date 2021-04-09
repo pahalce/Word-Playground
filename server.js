@@ -83,6 +83,7 @@ io.on("connection", (socket) => {
     };
   } else {
     room_list[id].players.push({ id: userId, username });
+    socket.to(id).emit(SOCKET_TYPE.SEND_MESSAGE, `${username} が参加しました`);
   }
   if (reconnecting === "true") {
     switch (room_list[id].state) {
@@ -187,7 +188,9 @@ io.on("connection", (socket) => {
       (player) => player.id !== userId
     );
     socket.to(id).emit(SOCKET_TYPE.PLAYERS_CHANGED, room_list[id].players);
-
+    socket
+      .to(id)
+      .emit(SOCKET_TYPE.SEND_MESSAGE, `${username} がルームを去りました`);
     // change room owner if any players are left
     if (room_list[id].owner === userId && room_list[id].players.length > 0) {
       const newOwnerId = room_list[id].players[0].id;
