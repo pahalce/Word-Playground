@@ -401,6 +401,13 @@ form {
 }
 
 /* -page-related- */
+.main-page {
+  .card {
+    margin: 0 auto;
+    max-width: 600px;
+    max-height: 360px;
+  }
+}
 .login,
 .signup,
 .update-profile,
@@ -428,10 +435,11 @@ form {
 }
 
 .gamepage {
-  h1 {
-    margin-bottom: 0;
-  }
-  &-acitve-players {
+  &-room-info {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    margin: 1em 0;
     text-align: center;
     font-size: $size-small;
     font-weight: 600;
@@ -442,13 +450,11 @@ form {
   }
   &-theme {
     text-align: center;
-    padding-top: 2vh;
     padding-bottom: 4vh;
     font-size: $size-regular;
     font-weight: 600;
     @include mq(sm) {
       font-size: $size-small;
-      padding-top: 0;
       padding-bottom: 2vh;
     }
     span {

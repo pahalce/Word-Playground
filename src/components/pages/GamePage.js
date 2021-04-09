@@ -362,42 +362,46 @@ const GamePage = () => {
     <>
       {room && (
         <div className="gamepage">
-          <h1 className="text-title">部屋:{room.roomName}</h1>
-          <div className="gamepage-acitve-players">
-            人数：{players.length}/{room.maxPlayers}
-          </div>
-          {state !== STATE.BEFORE_GAME && (
-            <div className="gamepage-theme">
-              <span>{letter}</span>
-              からはじまる
-              <div className="gamepage-theme-content">{theme}</div>
+          <div className="gamepage-room-info">
+            <div className="gamepage-room-name">部屋:{room.roomName}</div>
+            <div className="gamepage-acitve-players">
+              人数：{players.length}/{room.maxPlayers}
             </div>
-          )}
-          {state === STATE.BEFORE_GAME && isOwner && (
-            <Button text="ゲーム開始" onClick={gameStart} />
-          )}
-          {state === STATE.ANSWER && (
-            <Button
-              text={`お題変更(${changeThemeVoteNum}/${players.length})`}
-              onClick={changeTheme}
-              disabled={votedForChangeTheme}
-            />
-          )}
-          {state === STATE.SHOW_ANSWER && (
-            <Button text="回答を見せる" onClick={showAnswer} />
-          )}
-          {state === STATE.SHOW_POINTS && (
-            <Button
-              text={`次のお題へ(${changeThemeVoteNum}/${players.length})`}
-              onClick={changeTheme}
-            />
-          )}
-          {state === STATE.VOTE && (
-            <Button
-              text={`次のお題へ(${changeThemeVoteNum}/${players.length})`}
-              disabled
-            />
-          )}
+          </div>
+          <div className="gamepage-game-state-buttons">
+            {state !== STATE.BEFORE_GAME && (
+              <div className="gamepage-theme">
+                <span>{letter}</span>
+                からはじまる
+                <div className="gamepage-theme-content">{theme}</div>
+              </div>
+            )}
+            {state === STATE.BEFORE_GAME && isOwner && (
+              <Button text="ゲーム開始" onClick={gameStart} />
+            )}
+            {state === STATE.ANSWER && (
+              <Button
+                text={`お題変更(${changeThemeVoteNum}/${players.length})`}
+                onClick={changeTheme}
+                disabled={votedForChangeTheme}
+              />
+            )}
+            {state === STATE.SHOW_ANSWER && (
+              <Button text="回答を見せる" onClick={showAnswer} />
+            )}
+            {state === STATE.SHOW_POINTS && (
+              <Button
+                text={`次のお題へ(${changeThemeVoteNum}/${players.length})`}
+                onClick={changeTheme}
+              />
+            )}
+            {state === STATE.VOTE && (
+              <Button
+                text={`次のお題へ(${changeThemeVoteNum}/${players.length})`}
+                disabled
+              />
+            )}
+          </div>
           <div className="advice-text">{adviceText}</div>
           <div className="gamepage-board shadow">
             {players.length > 0 &&
