@@ -214,6 +214,9 @@ const GamePage = () => {
       setPoints(points);
       setState(STATE.SHOW_POINTS);
     });
+    socket.on(SOCKET_TYPE.SEND_EMOJI, ({ userId, emoji }) => {
+      showEmoji(userId, emoji);
+    });
 
     return () => {
       Object.keys(SOCKET_TYPE).forEach((type) => {
@@ -327,9 +330,28 @@ const GamePage = () => {
   };
   const toggleEmojiPicker = () => {
     const emojiPicker = document.querySelector(".emoji-picker");
-
     emojiPicker.classList.toggle("show");
     setPickerVisible((pickerVisible) => !pickerVisible);
+  };
+  const sendEmoji = (emoji) => {
+    const emojiPicker = document.querySelector(".emoji-picker");
+    const iconBtn = document.querySelector(".btn-icon");
+    emojiPicker.classList.remove("show");
+    iconBtn.classList.remove("selected");
+    setSelectedEmoji(emoji);
+    socket.emit(SOCKET_TYPE.SEND_EMOJI, currentUser.uid, emoji);
+    showEmoji(currentUser.uid, emoji);
+  };
+  const showEmoji = (userId, emoji) => {
+    const bubble = document.getElementById("bubble-" + userId);
+    const iconBtn = document.querySelector(".btn-icon");
+    iconBtn.classList.add("disabled");
+    bubble.classList.add("show");
+    bubble.innerHTML = emoji;
+    setTimeout(() => {
+      bubble.classList.remove("show");
+      iconBtn.classList.remove("disabled");
+    }, 2000);
   };
 
   return (
@@ -378,7 +400,10 @@ const GamePage = () => {
               players.map((player) => {
                 return (
                   <div className="gamepage-board-card" key={player.id}>
-                    <div className="bubble bubble-bottom-left">👍</div>
+                    <div
+                      id={"bubble-" + player.id}
+                      className="bubble bubble-bottom-left"
+                    ></div>
                     <Card
                       title={getDisplayName(player.username, points[player.id])}
                       content={boardMsg[player.id]}
@@ -412,21 +437,7 @@ const GamePage = () => {
               <Input type="txt" placeholder="回答" inputRef={answerRef} />
               <Submit disabled={state !== STATE.ANSWER} />
             </form>
-            <EmojiPicker
-              setSelectedEmoji={(emoji) => {
-                const emojiPicker = document.querySelector(".emoji-picker");
-                const bubble = document.querySelector(".bubble");
-                const iconBtn = document.querySelector(".btn-icon");
-                emojiPicker.classList.remove("show");
-                setSelectedEmoji(emoji);
-                bubble.classList.add("show");
-                bubble.innerHTML = emoji;
-                setTimeout(() => {
-                  bubble.classList.remove("show");
-                }, 2000);
-                iconBtn.classList.remove("selected");
-              }}
-            />
+            <EmojiPicker sendEmoji={sendEmoji} />
             <BtnIcon
               icon={MdInsertEmoticon}
               size="2.25em"

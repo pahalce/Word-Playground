@@ -1,7 +1,7 @@
 import { emojis } from "../../../misc/emojis";
-const EmojiPicker = ({ setSelectedEmoji }) => {
+const EmojiPicker = ({ sendEmoji }) => {
   const pickEmoji = (emoji) => {
-    setSelectedEmoji(emoji);
+    sendEmoji(emoji);
   };
   return (
     <div className="emoji-picker">

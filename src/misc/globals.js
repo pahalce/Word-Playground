@@ -12,6 +12,7 @@ export const SOCKET_TYPE = {
   VOTE: "VOTE",
   VOTE_DONE: "VOTE_DONE",
   CALC_POINTS: "CALC_POINTS",
+  SEND_EMOJI: "SEND_EMOJI",
 };
 
 export const STATE = {
