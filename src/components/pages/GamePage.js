@@ -81,7 +81,11 @@ const GamePage = () => {
     initConnection();
     const unsubscribe = db.rooms.doc(roomId).onSnapshot(
       (snapshot) => {
-        setRoom(db.formatDoc(snapshot));
+        const room = db.formatDoc(snapshot);
+        setRoom(room);
+        if (room.owner === currentUser.uid) {
+          setIsOwner(true);
+        }
       },
       (err) => {
         toast.error(err);
