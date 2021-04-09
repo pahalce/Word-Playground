@@ -588,10 +588,12 @@ form {
       position: absolute;
       top: 0;
       opacity: 0;
+      pointer-events: none;
       transition: opacity 0.3s ease-in-out;
       transform: translateY(-100%);
       z-index: 1;
       &.show {
+        pointer-events: initial;
         opacity: 1;
       }
     }
