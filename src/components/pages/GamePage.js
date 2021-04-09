@@ -32,6 +32,7 @@ const GamePage = () => {
   const [changeThemeVoteNum, setchangeThemeVoteNum] = useState(0);
   const answerRef = useRef("");
   const [votingTo, setVotingTo] = useState(null); // userId
+  const [votedForChangeTheme, setVotedForChangeTheme] = useState(false);
   const [points, setPoints] = useState({});
   const [adviceText, setAdviceText] = useState("ゲーム開始まで待機中...");
   const [pickerVisible, setPickerVisible] = useState(false);
@@ -188,6 +189,7 @@ const GamePage = () => {
     });
     socket.on(SOCKET_TYPE.GET_THEME, (data) => {
       updateAllStates(data);
+      setVotedForChangeTheme(false);
     });
     socket.on(SOCKET_TYPE.CHANGE_THEME_VOTE, (num) => {
       setchangeThemeVoteNum(num);
@@ -292,6 +294,7 @@ const GamePage = () => {
     socket.emit(SOCKET_TYPE.SHOW_ANSWER, currentUser.uid);
   };
   const changeTheme = () => {
+    setVotedForChangeTheme(true);
     socket.emit(SOCKET_TYPE.GET_THEME);
   };
   const votePlayer = (userId) => {
@@ -351,6 +354,7 @@ const GamePage = () => {
             <Button
               text={`お題変更(${changeThemeVoteNum}/${players.length})`}
               onClick={changeTheme}
+              disabled={votedForChangeTheme}
             />
           )}
           {state === STATE.SHOW_ANSWER && (
