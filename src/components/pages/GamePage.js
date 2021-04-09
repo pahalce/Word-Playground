@@ -345,12 +345,16 @@ const GamePage = () => {
   const showEmoji = (userId, emoji) => {
     const bubble = document.getElementById("bubble-" + userId);
     const iconBtn = document.querySelector(".btn-icon");
-    iconBtn.classList.add("disabled");
+    if (userId === currentUser.uid) {
+      iconBtn.classList.add("disabled");
+    }
     bubble.classList.add("show");
     bubble.innerHTML = emoji;
     setTimeout(() => {
       bubble.classList.remove("show");
-      iconBtn.classList.remove("disabled");
+      if (userId === currentUser.uid) {
+        iconBtn.classList.remove("disabled");
+      }
     }, 2000);
   };
 
