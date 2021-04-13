@@ -1,4 +1,5 @@
 # Word-Playground
-[遊ぶ](https://word-playground.netlify.app)
 
-React + Firebase
+client for [word-playground](https://word-playground.netlify.app)
+
+React(rca) + Firebase
