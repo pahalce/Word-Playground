@@ -47,7 +47,7 @@
 /* General sidebar styles */
 .bm-menu {
   background: $black;
-  padding: 2.5em 0.5em 0;
+  padding: 2.5em 0;
   font-size: 1.15em;
 }
 
@@ -65,7 +65,7 @@
 /* Individual item */
 .bm-item {
   display: inline-block;
-  padding: 0.2em 1.2em;
+  padding: 0.2em 0.8em;
   & + & {
     margin-top: 1em;
   }

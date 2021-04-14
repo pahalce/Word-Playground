@@ -146,6 +146,7 @@ form {
         }
         @include mq(sm) {
           display: none;
+          margin-left: 0;
         }
         &:hover {
           color: $primary;
@@ -305,6 +306,10 @@ form {
 .input-wrapper {
   display: flex;
   justify-content: left;
+  max-width: 50vw;
+  @include mq() {
+    max-width: initial;
+  }
 }
 .form-label {
   font-size: $size-regular;
