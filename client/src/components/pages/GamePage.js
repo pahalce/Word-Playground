@@ -45,15 +45,12 @@ const GamePage = () => {
       try {
         const doc = await db.rooms.doc(roomId).get();
         if (!doc.exists) {
-          toast.error("This room is closed.");
-          history.push("/rooms");
+          throw Error("room not found.");
         }
         if (doc.data().isGameStarted === true) {
           // not allowed to enter (game is already started && you are not reconnecting)
           if (!doc.data().startingMember.includes(currentUser.uid)) {
-            toast.error("This room is closed.");
-            history.push("/rooms");
-            return;
+            throw Error("This room is closed.");
           }
           // reconnect to room
           const idToken = await currentUser.getIdToken(true);
@@ -75,6 +72,7 @@ const GamePage = () => {
         }
       } catch (err) {
         toast.error(err.message);
+        history.push("/rooms");
       }
     };
 
@@ -88,13 +86,15 @@ const GamePage = () => {
         }
       },
       (err) => {
-        toast.error(err);
+        toast.error(err.message);
       }
     );
 
     return () => {
       unsubscribe();
-      newSocket.close();
+      if (newSocket) {
+        newSocket.close();
+      }
     };
   }, [
     roomId,
