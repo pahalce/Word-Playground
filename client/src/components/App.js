@@ -14,16 +14,17 @@ import Rooms from "./pages/Rooms";
 import { RoomProvider } from "../contexts/RoomContext";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import NotFound from "./pages/NotFound";
 
 function App() {
   return (
     <div className="App">
       <Router>
-        <Switch>
-          <AuthProvider>
-            <RoomProvider>
-              <Navbar />
-              <div className="container">
+        <AuthProvider>
+          <RoomProvider>
+            <Navbar />
+            <div className="container">
+              <Switch>
                 <Route path="/signup" component={Signup} />
                 <Route path="/login" component={Login} />
                 <Route path="/forgot-password" component={ForgotPassword} />
@@ -36,10 +37,11 @@ function App() {
                 <PrivateRoute path="/create-room" component={CreateRoom} />
                 <PrivateRoute path="/rooms" render={() => <Rooms />} />
                 <PrivateRoute path="/gamepage" render={() => <GamePage />} />
-              </div>
-            </RoomProvider>
-          </AuthProvider>
-        </Switch>
+                <Route component={NotFound} />
+              </Switch>
+            </div>
+          </RoomProvider>
+        </AuthProvider>
       </Router>
       <ToastContainer position="bottom-right" autoClose={5000} newestOnTop />
     </div>
