@@ -6,7 +6,12 @@ import Alert from "../reusables/Alert";
 import { Link } from "react-router-dom";
 
 const UpdateProfile = () => {
-  const { currentUser, updateEmail, updatePassword, updateUsername } = useAuth();
+  const {
+    currentUser,
+    updateEmail,
+    updatePassword,
+    updateUsername,
+  } = useAuth();
   const emailRef = useRef("");
   const passwordRef = useRef("");
   const passwordConfirmRef = useRef("");
@@ -57,7 +62,10 @@ const UpdateProfile = () => {
     <div className="update-profile">
       <h1 className="text-title">プロフィール更新</h1>
       <form onSubmit={handleSubmit}>
-        <Alert msg={error ? error : message} type={error ? "danger" : "success"} />
+        <Alert
+          msg={error ? error : message}
+          type={error ? "danger" : "success"}
+        />
 
         <Input
           label="Eメール:"

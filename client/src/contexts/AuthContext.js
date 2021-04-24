@@ -93,5 +93,9 @@ export const AuthProvider = ({ children }) => {
     updatePassword,
     updateUsername,
   };
-  return <AuthContext.Provider value={value}>{!loading && children}</AuthContext.Provider>;
+  return (
+    <AuthContext.Provider value={value}>
+      {!loading && children}
+    </AuthContext.Provider>
+  );
 };
