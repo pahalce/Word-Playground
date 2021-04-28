@@ -35,6 +35,7 @@ const GamePage = () => {
   const [votedForChangeTheme, setVotedForChangeTheme] = useState(false);
   const [points, setPoints] = useState({});
   const [adviceText, setAdviceText] = useState("ゲーム開始まで待機中...");
+  const [isLoading, setIsLoading] = useState(true);
 
   // init connection to room
   useEffect(() => {
@@ -250,6 +251,9 @@ const GamePage = () => {
     return stringAll;
   };
   const toggleEmojiPicker = () => {
+    if (isLoading) {
+      return;
+    }
     const emojiPicker = document.querySelector(".emoji-picker");
     emojiPicker.classList.toggle("show");
   };
@@ -285,6 +289,7 @@ const GamePage = () => {
     });
     socket.on(SOCKET_TYPE.INIT_CONNECTION, (data) => {
       updateAllStates(data);
+      setIsLoading(false);
     });
     socket.on(SOCKET_TYPE.PLAYERS_CHANGED, (newPlayers) => {
       setPlayers(newPlayers);
