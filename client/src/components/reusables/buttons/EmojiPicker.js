@@ -7,17 +7,15 @@ const EmojiPicker = ({ sendEmoji }) => {
     <div className="emoji-picker">
       {emojis.map((emoji, index) => {
         return (
-          <>
-            <div
-              className="emoji-btn"
-              key={index}
-              onClick={() => {
-                pickEmoji(emoji);
-              }}
-            >
-              {emoji}
-            </div>
-          </>
+          <div
+            className="emoji-btn"
+            key={index}
+            onClick={() => {
+              pickEmoji(emoji);
+            }}
+          >
+            {emoji}
+          </div>
         );
       })}
     </div>
