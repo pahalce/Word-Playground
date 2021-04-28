@@ -35,8 +35,6 @@ const GamePage = () => {
   const [votedForChangeTheme, setVotedForChangeTheme] = useState(false);
   const [points, setPoints] = useState({});
   const [adviceText, setAdviceText] = useState("ゲーム開始まで待機中...");
-  const [pickerVisible, setPickerVisible] = useState(false);
-  const [selectedEmoji, setSelectedEmoji] = useState();
 
   // init connection to room
   useEffect(() => {
@@ -173,86 +171,6 @@ const GamePage = () => {
     setBoardMsg(boardList);
   }, [state, players, answers, points, currentUser.uid]);
 
-  // socket events
-  useEffect(() => {
-    if (socket == null) return;
-    socket.on("connect_error", (err) => {
-      toast.error(err.message); // not authorized
-    });
-    socket.on(SOCKET_TYPE.INIT_CONNECTION, (data) => {
-      updateAllStates(data);
-    });
-    socket.on(SOCKET_TYPE.PLAYERS_CHANGED, (newPlayers) => {
-      setPlayers(newPlayers);
-    });
-    socket.on(SOCKET_TYPE.RECONNECT, (data) => {
-      updateAllStates(data);
-    });
-    socket.on(SOCKET_TYPE.CHANGE_STATE, (newState) => {
-      setState(newState);
-    });
-    socket.on(SOCKET_TYPE.GET_THEME, (data) => {
-      updateAllStates(data);
-      setVotedForChangeTheme(false);
-    });
-    socket.on(SOCKET_TYPE.CHANGE_THEME_VOTE, (num) => {
-      setchangeThemeVoteNum(num);
-    });
-    socket.on(SOCKET_TYPE.SEND_ANSWER, ({ userId, answer }) => {
-      const answers_list = Object.assign({}, answers);
-      answers_list[userId] = answer;
-      setAnswers(answers_list);
-    });
-    socket.on(SOCKET_TYPE.SHOW_ANSWER, (playerId) => {
-      const answers_list = Object.assign({}, answers);
-      answers_list[playerId].shown = true;
-      setAnswers(answers_list);
-    });
-    socket.on(SOCKET_TYPE.SEND_MESSAGE, (msg) => toast.info(msg));
-    socket.on(SOCKET_TYPE.VOTE_DONE, () => {
-      setState(STATE.SHOW_POINTS);
-      setVotingTo(null);
-    });
-    socket.on(SOCKET_TYPE.CALC_POINTS, (points) => {
-      // update points
-      setPoints(points);
-      setState(STATE.SHOW_POINTS);
-    });
-    socket.on(SOCKET_TYPE.SEND_EMOJI, ({ userId, emoji }) => {
-      showEmoji(userId, emoji);
-    });
-
-    return () => {
-      Object.keys(SOCKET_TYPE).forEach((type) => {
-        socket.off(type);
-      });
-    };
-  }, [socket, answers]);
-
-  // control states
-  useEffect(() => {
-    if (isOwner) {
-      if (state === STATE.ANSWER) {
-        // go to show_answer state when all players answered
-        const missingAnswer = players.some((player) => {
-          return !answers[player.id];
-        });
-        if (!missingAnswer) {
-          socket.emit(SOCKET_TYPE.CHANGE_STATE, SOCKET_TYPE.SHOW_ANSWER);
-        }
-      }
-      if (state === STATE.SHOW_ANSWER) {
-        // go to vote state when all answers are shown
-        const notShown = players.some(
-          (player) => answers[player.id] && answers[player.id].shown === false
-        );
-        if (!notShown) {
-          socket.emit(SOCKET_TYPE.CHANGE_STATE, SOCKET_TYPE.VOTE);
-        }
-      }
-    }
-  }, [answers, isOwner, socket, state, players]);
-
   const updateAllStates = (data) => {
     // set answer first before state changes (to reset answer before new theme is shown)
     setAnswers(data.answers);
@@ -317,7 +235,6 @@ const GamePage = () => {
       setVotingTo(null);
     }
   };
-
   const getDisplayName = (username, point) => {
     const stringAll = username + ":" + (point ? point : 0);
     const length = stringAll.length;
@@ -335,14 +252,12 @@ const GamePage = () => {
   const toggleEmojiPicker = () => {
     const emojiPicker = document.querySelector(".emoji-picker");
     emojiPicker.classList.toggle("show");
-    setPickerVisible((pickerVisible) => !pickerVisible);
   };
   const sendEmoji = (emoji) => {
     const emojiPicker = document.querySelector(".emoji-picker");
     const iconBtn = document.querySelector(".btn-icon");
     emojiPicker.classList.remove("show");
     iconBtn.classList.remove("selected");
-    setSelectedEmoji(emoji);
     socket.emit(SOCKET_TYPE.SEND_EMOJI, currentUser.uid, emoji);
     showEmoji(currentUser.uid, emoji);
   };
@@ -361,6 +276,86 @@ const GamePage = () => {
       }
     }, 2000);
   };
+
+  // socket events
+  useEffect(() => {
+    if (socket == null) return;
+    socket.on("connect_error", (err) => {
+      toast.error(err.message); // not authorized
+    });
+    socket.on(SOCKET_TYPE.INIT_CONNECTION, (data) => {
+      updateAllStates(data);
+    });
+    socket.on(SOCKET_TYPE.PLAYERS_CHANGED, (newPlayers) => {
+      setPlayers(newPlayers);
+    });
+    socket.on(SOCKET_TYPE.RECONNECT, (data) => {
+      updateAllStates(data);
+    });
+    socket.on(SOCKET_TYPE.CHANGE_STATE, (newState) => {
+      setState(newState);
+    });
+    socket.on(SOCKET_TYPE.GET_THEME, (data) => {
+      updateAllStates(data);
+      setVotedForChangeTheme(false);
+    });
+    socket.on(SOCKET_TYPE.CHANGE_THEME_VOTE, (num) => {
+      setchangeThemeVoteNum(num);
+    });
+    socket.on(SOCKET_TYPE.SEND_ANSWER, ({ userId, answer }) => {
+      const answers_list = Object.assign({}, answers);
+      answers_list[userId] = answer;
+      setAnswers(answers_list);
+    });
+    socket.on(SOCKET_TYPE.SHOW_ANSWER, (playerId) => {
+      const answers_list = Object.assign({}, answers);
+      answers_list[playerId].shown = true;
+      setAnswers(answers_list);
+    });
+    socket.on(SOCKET_TYPE.SEND_MESSAGE, (msg) => toast.info(msg));
+    socket.on(SOCKET_TYPE.VOTE_DONE, () => {
+      setState(STATE.SHOW_POINTS);
+      setVotingTo(null);
+    });
+    socket.on(SOCKET_TYPE.CALC_POINTS, (points) => {
+      // update points
+      setPoints(points);
+      setState(STATE.SHOW_POINTS);
+    });
+    socket.on(SOCKET_TYPE.SEND_EMOJI, ({ userId, emoji }) => {
+      showEmoji(userId, emoji);
+    });
+
+    return () => {
+      Object.keys(SOCKET_TYPE).forEach((type) => {
+        socket.off(type);
+      });
+    };
+  }, [socket, answers, showEmoji]);
+
+  // control states
+  useEffect(() => {
+    if (isOwner) {
+      if (state === STATE.ANSWER) {
+        // go to show_answer state when all players answered
+        const missingAnswer = players.some((player) => {
+          return !answers[player.id];
+        });
+        if (!missingAnswer) {
+          socket.emit(SOCKET_TYPE.CHANGE_STATE, SOCKET_TYPE.SHOW_ANSWER);
+        }
+      }
+      if (state === STATE.SHOW_ANSWER) {
+        // go to vote state when all answers are shown
+        const notShown = players.some(
+          (player) => answers[player.id] && answers[player.id].shown === false
+        );
+        if (!notShown) {
+          socket.emit(SOCKET_TYPE.CHANGE_STATE, SOCKET_TYPE.VOTE);
+        }
+      }
+    }
+  }, [answers, isOwner, socket, state, players]);
 
   return (
     <>
@@ -455,7 +450,6 @@ const GamePage = () => {
               size="2.25em"
               onClick={toggleEmojiPicker}
             />
-            {/* <BtnIcon icon={MdSettings} size="2.25em" /> */}
           </div>
         </div>
       )}
