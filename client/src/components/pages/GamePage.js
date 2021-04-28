@@ -251,13 +251,13 @@ const GamePage = () => {
     return stringAll;
   };
   const toggleEmojiPicker = () => {
-    if (isLoading) {
-      return;
-    }
     const emojiPicker = document.querySelector(".emoji-picker");
     emojiPicker.classList.toggle("show");
   };
   const sendEmoji = (emoji) => {
+    if (isLoading) {
+      return;
+    }
     const emojiPicker = document.querySelector(".emoji-picker");
     const iconBtn = document.querySelector(".btn-icon");
     emojiPicker.classList.remove("show");
