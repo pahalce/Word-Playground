@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import Card from "../reusables/Card";
 import Input from "../reusables/form/Input";
 import Submit from "../reusables/form/Submit";
@@ -265,21 +265,24 @@ const GamePage = () => {
     socket.emit(SOCKET_TYPE.SEND_EMOJI, currentUser.uid, emoji);
     showEmoji(currentUser.uid, emoji);
   };
-  const showEmoji = (userId, emoji) => {
-    const bubble = document.getElementById("bubble-" + userId);
-    const iconBtn = document.querySelector(".btn-icon");
-    if (userId === currentUser.uid) {
-      iconBtn.classList.add("disabled");
-    }
-    bubble.classList.add("show");
-    bubble.innerHTML = emoji;
-    setTimeout(() => {
-      bubble.classList.remove("show");
+  const showEmoji = useCallback(
+    (userId, emoji) => {
+      const bubble = document.getElementById("bubble-" + userId);
+      const iconBtn = document.querySelector(".btn-icon");
       if (userId === currentUser.uid) {
-        iconBtn.classList.remove("disabled");
+        iconBtn.classList.add("disabled");
       }
-    }, 2000);
-  };
+      bubble.classList.add("show");
+      bubble.innerHTML = emoji;
+      setTimeout(() => {
+        bubble.classList.remove("show");
+        if (userId === currentUser.uid) {
+          iconBtn.classList.remove("disabled");
+        }
+      }, 2000);
+    },
+    [currentUser.uid]
+  );
 
   // socket events
   useEffect(() => {
